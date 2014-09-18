@@ -1,0 +1,198 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\newtheorem{definition}{Definition}
+\newtheorem{claim}{Claim}
+\newtheorem{theorem}{Theorem}
+\newtheorem{example}{Example}
+\newtheorem{condition}{Condition}
+\newtheorem{proposition}{Proposition}
+
+\newtheorem{lemma}{Lemma}
+\usepackage{color}
+\usepackage{calrsfs}
+\usepackage{latexsym}
+\usepackage{mathrsfs}
+\usepackage{url}
+\usepackage[colorlinks=true]{hyperref}
+\hypersetup{
+    colorlinks,
+    citecolor=black,
+    filecolor=black,
+    linkcolor=blue,
+    urlcolor=blue
+}
+\usepackage{ulem}
+\def\st{\noindent}
+\renewcommand\em{\it}
+\renewcommand\emph{\textit}
+\newcommand\red[1]{{\color{red}#1}}
+\newcommand\blue[1]{{\color{blue}#1}}
+\newcommand\cancelr[1]{{\color{red}\sout{#1}}}
+
+%\newcommmand{\red}[1]{\textcolor{red}{#1}}
+%\renewcommand\red[1]{{\color{red}#1}}
+%opening
+\title{AST generator specification}
+\author{Evgenii Balai}
+\def\no{{\bf not}\;}
+\begin{document}
+
+\maketitle
+\st
+
+\tableofcontents
+\section{Vocabulary}
+
+\begin{itemize}
+\item \textit{identifier} -  a sequence of alphanumeric or underscore characters starting with a letter.
+\item \textit{numeral} - a sequence of characters used to represent a number. Numerals can be in one of the following forms:
+\begin{enumerate}
+\item $d_1\ldots d_k$
+\item $d_1\ldots d_n.d_1\ldots d_m$
+\end{enumerate}
+where each $d_i$ is a digit, $k \ge 0, n\ge 0$ and $m >0$.
+\end{itemize}
+
+
+\section{Input Specification}
+The input consists of the following:
+\begin{enumerate}
+\item lexicon file (defined in section \ref{lf})
+\item grammar file (defined in section \ref{gf}) 
+\item source file (defined in section \ref{sf})
+\end{enumerate}
+
+\subsection{Lexicon file}\label{lf}
+
+Lexicon file is an ASCII file that contains a specification of types of terminal symbols (\textit{lexems}) that may occur in a program file.
+Each lexem type is declared as 
+\begin{equation}\label{lexdef}
+lexem\_type\_name = regex
+\end{equation}
+where $lexem\_type\_name$ is an identifier and $regex$ is a regular expression following python syntax\cite{pythonre} whose special characters can be $.$, $*$, $+$, $?$, $\{m\}$, $\{m,n\}$, $[]$,$\backslash$ or $|$.
+
+We will say that statement (\ref{lexdef}) \textit{defines} a lexem type named $lexem\_type\_name$.
+
+Lexicon file may contain multiple declarations of the form (\ref{lexdef}), one per line, where no lexem type name occurs in the left hand side of a statement more than once, and no lexem type name is a member of the set $\{id, num\}  $.
+ 
+\subsection{Grammar File}\label{gf}
+\textit{Grammar file} is an ASCII file that contains a specification of non-terminals occurring in the produced abstract syntax tree as well as the desired structure of the tree. Every grammar file must be associated with a lexicon file. We will refer to the set of lexem type names defined in the file as $S_L$.  
+
+Non-terminals are defined by  statements of the form 
+
+\begin{equation}\label{nontd}
+nt[\mathcal{L}] = \alpha_1~\alpha_2~\ldots~\alpha_n 
+\end{equation}
+where 
+\begin{enumerate}
+\item $nt$ is an identifier which is not a member of the set $\{id,num\}\cup S_L$;
+\item each $\alpha_i$  is an identifier;
+\item $\mathcal{L}$ is a  space-separated sequence  of the form $id~\alpha_{k_1}~\ldots~\alpha_{k_m}$
+where $id$ is an identifier and each  $\alpha_{k_i}$ 
+is an element of the sequence   $\alpha_1\ldots \alpha_n$  on the right hand side of (\ref{nontd}).
+\end{enumerate}
+
+
+Grammar file may contain a sequence of statements of the form (2) such that
+\begin{enumerate}
+\item each $\alpha_i$ is in one of the forms $b$ or $b\_r$ where 
+\begin{itemize}
+\item $b$ a name of a non-terminal whose name appears in the left hand side of another statement of the form (2), or is an element of the set of identifiers $\{id,num\}\cup S_L$
+\item $r$ is a natural number in the range $1..n$
+\end{itemize}
+\item if $\alpha_i$ and $\alpha_j$ are two different elements of the sequence on the right hand side of (2), then 
+\begin{itemize}
+\item at least one of them is of the form $b\_r$, where $r$ is a natural number in the range $1..n$
+\item if $\alpha_i$ is of the form $b\_{r1}$ and $\alpha_j$ is of the form $b\_{r2}$, where $r1$ and $r2$ are two natural numbers in the range $1..n$, then $r1 \not= r2$.
+\end{itemize} 
+\item if there are two statements 
+$$ nt^1[\mathcal{L^1}] = \alpha_1^1~\alpha_2^1~\ldots~\alpha_{n_1}^1  $$
+and
+$$ nt^2[\mathcal{L^2}] = \alpha_1^2~\alpha_2^2~\ldots~\alpha_{n_2}^2  $$
+in the grammar file, then $nt^1$ is not of the form $nt^2\_r$, where $r$ is a natural number.
+\end{enumerate}
+ 
+
+
+
+
+\subsection{Source File}\label{sf}
+Source file is a file containing arbitrary collection of ASCII characters.
+
+\subsection{Input Example}\label{ie} 
+In this example we will define Algebraic Chess Notation \cite{chess} by means of lexicon and grammar defined in sections \ref{lf} and \ref{gf} and give an example of a game described in this notation. 
+\subsubsection{Lexicon file}
+\begin{verbatim}
+figure = K|Q|R|B|N
+file = [a-h]
+rank = [1-8]
+cell = [a-h][1-8]
+capture_char = x
+space = \s
+spaces = \s+
+dot = \.
+short_castling = 
+en_passant = e\.p\.
+natural_number = [1-9][0-9]+
+long_castling = 0-0-0
+short_castling = 0-0
+plus = \+
+pound_sign = #
+game_over = 1-0|1/2-1/2|0-1
+\end{verbatim}
+\subsubsection{Grammar file}
+\begin{verbatim}
+game[game move_d] = move_d 
+game[game move_d game] = move_d  spaces game
+move_d[move number move] = natural_number dot space move_1 move_2
+move_d[move natural_number end_of_game] = natural_number dot space move_1 game_over
+move[pawn_move cell] = cell
+move[move figure cell] = figure_spec cell
+move[capture figure_1 cell] = figure_spec capture_char cell
+move[pawn_capture file cell] = file capture_char cell
+move[pawn_special_capture] = file capture_char cell en_passant
+move[promotion cell figure] = cell figure
+move[castling long_castling] = long_castling
+move[castling short_castling] = short_castling
+check[check move] = move plus
+checkmate[checkmate move] = move pound_sign
+figure_spec[fig figure] = figure
+figure_spec[fig figure file] = figure file
+figure_spec[fig figure file] = figure rank
+figure_spec[fig figure cell] = figure cell
+\end{verbatim}
+
+\subsubsection{Source File}
+
+\begin{verbatim}
+
+1. e4 c5 2. Nf3 d6 3. Bb5+ Bd7 4. Bxd7+ Qxd7 5. c4 Nc6 6. Nc3 Nf6 
+7. 0-0 g6 8. d4 cxd4 9. Nxd4 Bg7 10. Nde2 Qe6  11. Nd5 Qxe4 
+12. Nc7+ Kd7 13. Nxa8 Qxc4 14. Nb6+ axb6 15. Nc3 Ra8 16. a4 Ne4 
+17. Nxe4 Qxe4 18. Qb3 f5 19. Bg5 Qb4 20. Qf7 Be5 21. h3 Rxa4 
+22. Rxa4 Qxa4 23. Qxh7 Bxb2 24. Qxg6 Qe4 25. Qf7 Bd4 26. Qb3 f4 
+27. Qf7 Be5 28. h4 b5 29. h5 Qc4 30. Qf5+ Qe6 31. Qxe6+ Kxe6 
+32. g3 fxg3 33. fxg3 b4 (the World Team did not trust 33...Bxg3 
+34.h6 Be5 35.h7 Bg7 36.Rf8 b4 37.h8=Q Bxh8 38.Rxh8) 34. Bf4 Bd4+ 
+35. Kh1! b3 36. g4 Kd5 37. g5 e6 38. h6 Ne7 39. Rd1 e5 40. Be3 Kc4 
+41. Bxd4 exd4 42. Kg2 b2 43. Kf3 Kc3 44. h7 Ng6 45. Ke4 Kc2 
+46. Rh1 d3 47. Kf5 b1=Q 48. Rxb1 Kxb1 49. Kxg6 d2 50. h8=Q d1=Q 
+51. Qh7 b5 52. Kf6+ Kb2 53. Qh2+ Ka1 54. Qf4 b4 55. Qxb4 Qf3+ 
+56. Kg7 d5 57. Qd4+ Kb1 58. g6 Qe4 59. Qg1+ Kb2 60. Qf2+ Kc1 
+61. Kf6 d4 62. g7 1–0 
+\end{verbatim}
+
+\section{Output specification}
+The output is obtained in two steps
+\begin{enumerate}
+\item \textit{Lexing}.  \textit{Lexer Module} takes a source file and lexicon file and outputs a sequence of annotated lexems as specified in section \ref{lex}.
+\item \textit{Parsing}. \textit{Parser Module} takes an output of the lexer module and grammar file as an input and returns an abstract tree as specified in section \ref{pars}.
+\end{enumerate}
+
+\subsection{Lexing}\label{lex}
+\subsection{Parsing}\label{pars}
+\bibliography{mylib}
+\bibliographystyle{plain}
+\end{document}

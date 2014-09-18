@@ -1,0 +1,6 @@
+@misc{pythonre,
+   title = "Regular expression operations -- Python 3.4.1 documentation",
+   author = {Python Software Foundation},
+   howpublished = "\url{https://docs.python.org/3.4/library/re.html}"
+}
+
