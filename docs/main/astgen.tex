@@ -52,7 +52,7 @@
 \item $d_1\ldots d_k$
 \item $d_1\ldots d_n.d_1\ldots d_m$
 \end{enumerate}
-possible preceded by a minus sign
+possible preceded by a minus sign,
 where each $d_i$ is a digit, $k > 0, n\ge 0$ and $m >0$.
 \end{itemize}
 
@@ -67,7 +67,7 @@ The input consists of the following:
 
 \subsection{Lexicon file}\label{lf}
 
-Lexicon file is an ASCII file that contains a specification of types of terminal symbols (\textit{lexems}) that may occur in a program file.
+A lexicon file is an ASCII file that contains a specification of types of terminal symbols (\textit{lexems}) that may occur in a program file.
 Each lexem type is declared as 
 \begin{equation}\label{lexdef}
 lexem\_type\_name = regex
@@ -79,7 +79,7 @@ We will say that statement (\ref{lexdef}) \textit{defines} a lexem type named $l
 Lexicon file may contain multiple declarations of the form (\ref{lexdef}), one per line, where no lexem type name occurs in the left hand side of a statement more than once, and no lexem type name is a member of the set $\{id, num\}  $.
  
 \subsection{Grammar File}\label{gf}
-\textit{Grammar file} is an ASCII file that contains a specification of non-terminals occurring in the produced abstract syntax tree as well as the desired structure of the tree. Every grammar file must be associated with a lexicon file. We will refer to the set of lexem type names defined in the file as $S_L$.  
+A grammar file is an ASCII file that contains a specification of non-terminals occurring in the produced abstract syntax tree as well as the desired structure of the tree. Every grammar file must be associated with a lexicon file. We will refer to the set of lexem type names defined in the file as $S_L$.  
 
 Non-terminals are defined by  statements of the form 
 
@@ -96,11 +96,11 @@ is an element of the sequence   $\alpha_1\ldots \alpha_n$  on the right hand sid
 \end{enumerate}
 
 
-Grammar file may contain a sequence of statements of the form (2) such that
+A grammar file may contain a sequence of statements of the form (2) such that
 \begin{enumerate}
 \item each $\alpha_i$ is in one of the forms $b$ or $b\_r$ where 
 \begin{itemize}
-\item $b$ a name of a non-terminal whose name appears in the left hand side of another statement of the form (2), or is an element of the set of identifiers $\{id,num\}\cup S_L$
+\item $b$ is a name of a non-terminal whose name appears in the left hand side of another statement of the form (2), or is an element of the set of identifiers $\{id,num\}\cup S_L$
 \item $r$ is a natural number in the range $1..n$
 \end{itemize}
 \item if $\alpha_i$ and $\alpha_j$ are two different elements of the sequence on the right hand side of (2), then 
@@ -120,7 +120,7 @@ in the grammar file, then $nt^1$ is not of the form $nt^2\_r$, where $r$ is a na
 
 
 \subsection{Source File}\label{sf}
-Source file is a file containing arbitrary collection of ASCII characters.
+A source file is a file containing arbitrary collection of ASCII characters.
 
 \subsection{Input Example}\label{ie} 
 In this example we will define Algebraic Chess Notation \cite{chess} by means of lexicon and grammar defined in sections \ref{lf} and \ref{gf} and give an example of a game described in this notation. 
