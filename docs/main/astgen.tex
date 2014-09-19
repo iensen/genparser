@@ -193,6 +193,24 @@ The output is obtained in two steps
 \end{enumerate}
 
 \subsection{Lexing}\label{lex}
+Given a lexicon file $L$, by $S_L$ we denote the set of all names of lexem types defined in $L$. 
+The \textit{lexicon dictionary} is a dictionary that maps each member of the  $S_L \cup \{id,num\}$ into a regular expression as follows:
+\begin{enumerate}
+\item if $l \in S_L$, the regular expression is on the right hand side of the statement
+$$l = expr$$
+appearing in L;
+\item if $l$ is $id$, the regular expression is 
+                               $$[a-z][a-z\_]+$$
+\item if $l$ is $num$, the regular expression is 
+                $$-?[1-9][0-9]+ |-?0\backslash.[0-9]+ | -?[1-9][0-9]+\backslash.[0-9]+$$ 
+
+\end{enumerate}
+
+For each member $l$ of the set $S_L \cup \{id,num\}$ by $\mathcal{E}[l]$ we denote the regular expression that corresponds to $l$ in  the lexicon dictionary.
+
+We will say that a string $S$ \textit{matches} a regular expression $E$ if ??? 
+
+  
 \subsection{Parsing}\label{pars}
 \bibliography{mylib}
 \bibliographystyle{plain}
