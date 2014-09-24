@@ -23,6 +23,7 @@
     linkcolor=blue,
     urlcolor=blue
 }
+\usepackage{alltt}
 \usepackage{ulem}
 \def\st{\noindent}
 \renewcommand\em{\it}
@@ -72,7 +73,7 @@ Each lexem type is declared as
 \begin{equation}\label{lexdef}
 lexem\_type\_name = regex
 \end{equation}
-where $lexem\_type\_name$ is an identifier and $regex$ is a regular expression following python syntax\cite{pythonre} whose special characters can be $.$, $*$, $+$, $?$, $\{m\}$, $\{m,n\}$, $[]$,$\backslash$ or $|$.
+where $lexem\_type\_name$ is an identifier and $regex$ is a regular expression following python syntax\cite{pythonre} whose special characters are limited to $.$, $*$, $+$, $?$, $\{m\}$, $\{m,n\}$, $[]$,$\backslash$ or $|$.
 
 We will say that statement (\ref{lexdef}) \textit{defines} a lexem type named $lexem\_type\_name$.
 
@@ -134,7 +135,6 @@ capture_char = x
 space = \s
 spaces = \s+
 dot = \.
-short_castling = 
 en_passant = e\.p\.
 natural_number = [1-9][0-9]+
 long_castling = 0-0-0
@@ -175,8 +175,7 @@ figure_spec[fig figure cell] = figure cell
 17. Nxe4 Qxe4 18. Qb3 f5 19. Bg5 Qb4 20. Qf7 Be5 21. h3 Rxa4 
 22. Rxa4 Qxa4 23. Qxh7 Bxb2 24. Qxg6 Qe4 25. Qf7 Bd4 26. Qb3 f4 
 27. Qf7 Be5 28. h4 b5 29. h5 Qc4 30. Qf5+ Qe6 31. Qxe6+ Kxe6 
-32. g3 fxg3 33. fxg3 b4 (the World Team did not trust 33...Bxg3 
-34.h6 Be5 35.h7 Bg7 36.Rf8 b4 37.h8=Q Bxh8 38.Rxh8) 34. Bf4 Bd4+ 
+32. g3 fxg3 33. fxg3 b4 34. Bf4 Bd4+ 
 35. Kh1! b3 36. g4 Kd5 37. g5 e6 38. h6 Ne7 39. Rd1 e5 40. Be3 Kc4 
 41. Bxd4 exd4 42. Kg2 b2 43. Kf3 Kc3 44. h7 Ng6 45. Ke4 Kc2 
 46. Rh1 d3 47. Kf5 b1=Q 48. Rxb1 Kxb1 49. Kxg6 d2 50. h8=Q d1=Q 
@@ -188,30 +187,65 @@ figure_spec[fig figure cell] = figure cell
 \section{Output specification}
 The output is obtained in two steps
 \begin{enumerate}
-\item \textit{Lexing}.  \textit{Lexer Module} takes a source file and lexicon file and outputs a sequence of annotated lexems as specified in section \ref{lex}.
+\item \textit{Lexing}.  \textit{Lexer Module} takes a source file and lexicon file and outputs a sequence of annotated lexemes as specified in section \ref{lex}.
 \item \textit{Parsing}. \textit{Parser Module} takes an output of the lexer module and grammar file as an input and returns an abstract tree as specified in section \ref{pars}.
 \end{enumerate}
 
 \subsection{Lexing}\label{lex}
-Given a lexicon file $L$, by $S_L$ we denote the set of all names of lexem types defined in $L$. 
-The \textit{lexicon dictionary} is a dictionary that maps each member of the  $S_L \cup \{id,num\}$ into a regular expression as follows:
+In addition to thee  set of lexeme types  declared in the lexicon file, denoted by $S_L$, we introduce two more lexemes: $id$ and $num$.  For each lexeme $l$, we define a regular expression $\mathcal{R}_L(l)$ as follows:
+
 \begin{enumerate}
-\item if $l \in S_L$, the regular expression is on the right hand side of the statement
+\item if $l \in S_L$, $\mathcal{R}_L(l) = expr$, where $expr$ is the regular expression  on the right hand side of the statement
 $$l = expr$$
-appearing in L;
-\item if $l$ is $id$, the regular expression is 
+appearing in the lexicon file;
+\item if $l$ is $id$, $\mathcal{R}_L(l)$ is 
                                $$[a-z][a-z\_]+$$
-\item if $l$ is $num$, the regular expression is 
+\item if $l$ is $num$, $\mathcal{R}_L(l)$ is  
                 $$-?[1-9][0-9]+ |-?0\backslash.[0-9]+ | -?[1-9][0-9]+\backslash.[0-9]+$$ 
 
 \end{enumerate}
 
-For each member $l$ of the set $S_L \cup \{id,num\}$ by $\mathcal{E}[l]$ we denote the regular expression that corresponds to $l$ in  the lexicon dictionary.
 
-We will say that a string $S$ \textit{matches} a regular expression $E$ if ??? 
+We will say that a string $S$ \textit{matches} a regular expression $E$ if $S$ is a member of the set of strings specified by  the python regular expression 
+$$\wedge E \$ $$
+In other words, $S$ matches $E$ if the following python code prints \texttt{True}, when being run on a   python3.4 interpreter:
+\begin{alltt}
+import re
+regex = re.compile(r"^\(E\)$")
+print(regex.match("\(S\)") != None)
+\end{alltt}
 
-  
+The symbols $\wedge$ and $\$$ are added to $E$ to ensure that the whole string, but not its prefix or suffix are matched. More details on  the syntax and semantics of python regular expressions can be found in \cite{pythonre}.
+
+Let $I$ be the string that represents the contents of the input file. 
+The \textit{lexing sequence} of $I$ with respect to the lexicon file $L$ is a sequence of pairs $(s_1,l_1),\ldots (s_n,l_n)$, such that:
+
+\begin{enumerate}
+\item each $s_i$ is a string;
+\item each $l_i$ is a member of the set $S_L \cup \{id,num\}$;
+\item $s_1+\ldots+s_n$ = $I$ (+ denotes concatenation);
+\item for each $1 \le i  \le n$, $s_i$ matches $\mathcal{R}_L(l_i)$;
+\item for each $1 \le i \le n$, $s_i$ is the longest prefix of $s_i+\ldots+s_n$ such that $s_i$ matches  $\mathcal{R}_L(l)$ for some  $l \in  S_L \cup \{id,num\}$ 
+\end{enumerate}
+
+
+We will refer to each member of the lexing sequence as an \textit{annotated lexeme}.
+
+
+
+
+ 
+
+
+
+
 \subsection{Parsing}\label{pars}
+Given a sequence of annotated lexemes and a grammar file $F$, the goal of parsing is to produce an abstract syntax tree  defined in this section. 
+
+Let $G$ be the sequence of statements in $F$. By $G_{BNF}$ we denote a BNF grammar obtained from $G$ by removing $[\mathcal{L}]$ from each statement of the form \ref{nontd} in $G$.
+
+Let $\mathcal{T}$ be the derivation tree 
+
 \bibliography{mylib}
 \bibliographystyle{plain}
 \end{document}
