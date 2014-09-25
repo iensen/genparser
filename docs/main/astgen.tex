@@ -11,6 +11,7 @@
 
 \newtheorem{lemma}{Lemma}
 \usepackage{color}
+\usepackage{comment}
 \usepackage{calrsfs}
 \usepackage{latexsym}
 \usepackage{mathrsfs}
@@ -137,6 +138,7 @@ spaces = \s+
 dot = \.
 en_passant = e\.p\.
 natural_number = [1-9][0-9]+
+move_id = [1-9][0-9]+\.
 long_castling = 0-0-0
 short_castling = 0-0
 plus = \+
@@ -147,11 +149,11 @@ game_over = 1-0|1/2-1/2|0-1
 \begin{verbatim}
 game[game move_d] = move_d 
 game[game move_d game] = move_d  spaces game
-move_d[move number move] = natural_number dot space move_1 move_2
-move_d[move natural_number end_of_game] = natural_number dot space move_1 game_over
+move_d[move move_id move_1 move_2] = move_id space move_1 move_2
+move_d[game_over move move_id move_1] = move_id space move_1 game_over
 move[pawn_move cell] = cell
-move[move figure cell] = figure_spec cell
-move[capture figure_1 cell] = figure_spec capture_char cell
+move[move figure_spec cell] = figure_spec cell
+move[capture figure_spec cell] = figure_spec capture_char cell
 move[pawn_capture file cell] = file capture_char cell
 move[pawn_special_capture] = file capture_char cell en_passant
 move[promotion cell figure] = cell figure
@@ -166,7 +168,7 @@ figure_spec[fig figure cell] = figure cell
 \end{verbatim}
 
 \subsubsection{Source File}
-
+\begin{comment}
 \begin{verbatim}
 
 1. e4 c5 2. Nf3 d6 3. Bb5+ Bd7 4. Bxd7+ Qxd7 5. c4 Nc6 6. Nc3 Nf6 
@@ -181,7 +183,12 @@ figure_spec[fig figure cell] = figure cell
 46. Rh1 d3 47. Kf5 b1=Q 48. Rxb1 Kxb1 49. Kxg6 d2 50. h8=Q d1=Q 
 51. Qh7 b5 52. Kf6+ Kb2 53. Qh2+ Ka1 54. Qf4 b4 55. Qxb4 Qf3+ 
 56. Kg7 d5 57. Qd4+ Kb1 58. g6 Qe4 59. Qg1+ Kb2 60. Qf2+ Kc1 
-61. Kf6 d4 62. g7 1–0 
+61. Kf6 d4 62. g7 1-0 
+\end{verbatim}
+\end{comment}
+
+\begin{verbatim}
+1. e4 e5 2. Qh5 Nc6 3. Bc4 Nf6 4. Qxf7# 
 \end{verbatim}
 
 \section{Output specification}
@@ -218,12 +225,12 @@ print(regex.match("\(S\)") != None)
 The symbols $\wedge$ and $\$$ are added to $E$ to ensure that the whole string, but not its prefix or suffix are matched. More details on  the syntax and semantics of python regular expressions can be found in \cite{pythonre}.
 
 Let $I$ be the string that represents the contents of the input file. 
-The \textit{lexing sequence} of $I$ with respect to the lexicon file $L$ is a sequence of pairs $(s_1,l_1),\ldots (s_n,l_n)$, such that:
+The \textit{lexing sequence} of $I$ with respect to the lexicon file $L$ is a sequence of pairs $(l_1,s_1),\ldots (l_n,s_n)$, such that:
 
 \begin{enumerate}
+\item each $l_i$ is a lexeme which is a member of the set $S_L \cup \{id,num\}$;
 \item each $s_i$ is a string;
-\item each $l_i$ is a member of the set $S_L \cup \{id,num\}$;
-\item $s_1+\ldots+s_n$ = $I$ (+ denotes concatenation);
+\item $s_1+\ldots+s_n$ = $I$ (where + denotes concatenation);
 \item for each $1 \le i  \le n$, $s_i$ matches $\mathcal{R}_L(l_i)$;
 \item for each $1 \le i \le n$, $s_i$ is the longest prefix of $s_i+\ldots+s_n$ such that $s_i$ matches  $\mathcal{R}_L(l)$ for some  $l \in  S_L \cup \{id,num\}$ 
 \end{enumerate}
@@ -234,18 +241,90 @@ We will refer to each member of the lexing sequence as an \textit{annotated lexe
 
 
 
- 
-
-
 
 
 \subsection{Parsing}\label{pars}
-Given a sequence of annotated lexemes and a grammar file $F$, the goal of parsing is to produce an abstract syntax tree  defined in this section. 
+Given a sequence of annotated lexemes  $(l_1,s_1),\ldots, (l_n,s_n)$ and a grammar file $F$, the goal of parsing is to produce an abstract syntax tree  as defined in this section. 
 
-Let $G$ be the sequence of statements in $F$. By $G_{BNF}$ we denote a BNF grammar obtained from $G$ by removing $[\mathcal{L}]$ from each statement of the form \ref{nontd} in $G$.
+Let $G$ be the sequence of statements in $F$. By $G_{BNF}$ we denote a BNF grammar obtained from $G$ by the following steps:
 
-Let $\mathcal{T}$ be the derivation tree 
+\begin{enumerate}
+\item For each statement of the form \ref{nontd} in $G$, add new statements
 
+$$nt_{k_1}[\mathcal{L}] = \alpha_1~\alpha_2~\ldots~\alpha_n$$ 
+
+$\ldots$
+
+$$nt_{k_n}[\mathcal{L}] = \alpha_1~\alpha_2~\ldots~\alpha_n$$
+
+where each of $nt_{k_1},...,nt_{k_n}$ is an element of a sequence on the right hand side of a statement in $G$.  
+\item Remove $[\mathcal{L}]$ from each statement of the form \ref{nontd}. 
+\end{enumerate}
+
+Let $S_0 \to S_1 \to \ldots \to S_n$ be a leftmost derivation of $l_1\ldots l_n$ in $G_{BNF}$, where $S_0$ is the non-terminal occurring in the left hand side of the first statement in $G$. 
+Let $$nt[id~\alpha_{k_1}~\alpha_{k_2}~\ldots~\alpha_{k_m}] = \alpha_1~\alpha_2~\ldots~\alpha_n  $$  be the statement in $G$ corresponding to the production rule of $G_{BNF}$ that can be used to derive $S_1$ from $S_0$.
+
+The \textit{abstract syntax tree} corresponding to the derivation is a list defined as follows:
+
+\begin{enumerate}
+\item the first element of the list is $id$
+\item for each $1 \le i \le m$, the $(i+1)^{th}$ element of the list is an abstract syntax tree defined as follows:
+\begin{itemize}
+\item if $\alpha_i$ is a terminal in $G$, and  $(\alpha_i,s)$ is a member of the lexing sequence,
+      the abstract syntax tree is the list whose only element is   $(\alpha_i,s)$
+\item if $\alpha_i$ is a non-terminal, the abstract syntax tree corresponds to the left-most derivation
+$S_b \to \ldots \to S_e$, where $S_{b+1}$ is obtained from $S_{b}$ by expanding $\alpha_i$ and $S_e$ is the first element of  $S_0 \to S_1 \to \ldots \to S_n$   the non-terminals only  from $\alpha_{i+1}, \ldots, \alpha_{n}$.  
+  
+\end{itemize} 
+  
+\end{enumerate}
+\subsection{Example}
+
+The lexing sequence for the  lexicon file given in section \ref{lf} and source file given in section \ref{sf} is:
+
+\begin{verbatim}
+(move_id, '1.'), (space, ' '), (cell, 'e4'), (space, ' '), 
+(cell, 'e5'), (spaces, ' '), (move_id, '2.'), (space, ' '), 
+(figure, 'Q'), (cell, 'h5'), (space, ' '), (figure, 'B'),
+(cell, 'c6'), (spaces, ' '), (move_id, '3.'), (space, ' '), 
+(figure, 'B'), (cell, 'c4'), (space, ' '),  (figure, 'N'), 
+(cell, 'f6'), (spaces, ' '), (move_id, '4.'), (space, ' '), 
+(figure, 'Q'), (capture_char, 'x'), (cell, 'f7'),  
+(pound_sign, '#')
+\end{verbatim} 
+
+\st
+Given a grammar file in section \ref{gf}, the corresponding abstract syntax tree is:
+
+\begin{verbatim}
+[ game,
+      [move, [(move_id '1.')], [pawn_move [(cell 'e4')] ], 
+                                [pawn_move [(cell 'e5')] ] ],
+      [game, 
+           [move, [(move_id '2.')], [move [fig [(figure 'Q')]] 
+                                     [(cell 'h5')] ], 
+                                     [move, [fig [(figure 'N')]], 
+                                     [(cell 'c6')]]],
+           [game,
+               [move, [(move_id '3.')], [move [fig [(figure 'B')]],
+                                               [(cell 'c4')] ], 
+                                         [move, [fig [(figure 'N') ]], 
+                                         [(cell 'f6')]]
+               ],
+               [game,
+                       [checkmate   [move, [(move_id '4.')],
+                                       [capture [fig [(figure 'Q')] ], 
+                                       [(cell 'f7')] ] ] ]
+               ]
+           ]
+            
+      ]  
+]
+\end{verbatim}
+
+
+
+   
 \bibliography{mylib}
 \bibliographystyle{plain}
 \end{document}
