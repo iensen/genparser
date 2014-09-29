@@ -16,6 +16,7 @@
 \usepackage{latexsym}
 \usepackage{mathrsfs}
 \usepackage{url}
+\usepackage{titlesec}
 \usepackage[colorlinks=true]{hyperref}
 \hypersetup{
     colorlinks,
@@ -32,6 +33,40 @@
 \newcommand\red[1]{{\color{red}#1}}
 \newcommand\blue[1]{{\color{blue}#1}}
 \newcommand\cancelr[1]{{\color{red}\sout{#1}}}
+
+% define subsubsubsection
+\titleclass{\subsubsubsection}{straight}[\subsection]
+
+\newcounter{subsubsubsection}[subsubsection]
+\renewcommand\thesubsubsubsection{\thesubsubsection.\arabic{subsubsubsection}}
+\renewcommand\theparagraph{\thesubsubsubsection.\arabic{paragraph}} % optional; useful if paragraphs are to be numbered
+
+\titleformat{\subsubsubsection}
+  {\normalfont\normalsize\bfseries}{\thesubsubsubsection}{1em}{}
+\titlespacing*{\subsubsubsection}
+{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+
+\makeatletter
+\renewcommand\paragraph{\@startsection{paragraph}{5}{\z@}%
+  {3.25ex \@plus1ex \@minus.2ex}%
+  {-1em}%
+  {\normalfont\normalsize\bfseries}}
+\renewcommand\subparagraph{\@startsection{subparagraph}{6}{\parindent}%
+  {3.25ex \@plus1ex \@minus .2ex}%
+  {-1em}%
+  {\normalfont\normalsize\bfseries}}
+\def\toclevel@subsubsubsection{4}
+\def\toclevel@paragraph{5}
+\def\toclevel@paragraph{6}
+\def\l@subsubsubsection{\@dottedtocline{4}{7em}{4em}}
+\def\l@paragraph{\@dottedtocline{5}{10em}{5em}}
+\def\l@subparagraph{\@dottedtocline{6}{14em}{6em}}
+\makeatother
+
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{4}
+
+
 
 %\newcommmand{\red}[1]{\textcolor{red}{#1}}
 %\renewcommand\red[1]{{\color{red}#1}}
@@ -86,47 +121,66 @@ A grammar file is an ASCII file that contains a specification of non-terminals o
 Non-terminals are specified  by  statements of the form 
 
 \begin{equation}\label{nontd}
-nt[\mathcal{L}] = \alpha_1~\alpha_2~\ldots~\alpha_n 
+nt(\mathcal{L}) = \alpha_1(\tau_1)~\alpha_2(\tau_2)~\ldots~\alpha_n(\tau_n) 
 \end{equation}
 where 
 \begin{enumerate}
-\item $nt$ is an identifier which is not a member of the set $\{id,num\}\cup S_L$;
+\item $nt$ is an identifier which is not a member of the set $\{id,num\}\cup S_L$ sometimes referred to as a \textit{non-terminal name};
 \item each $\alpha_i$  is an identifier;
-\item $\mathcal{L}$ is a  space-separated sequence  of the form $id~\alpha_{k_1}~\ldots~\alpha_{k_m}$
-where $id$ is an identifier and each  $\alpha_{k_i}$ 
-is an element of the sequence   $\alpha_1\ldots \alpha_n$  on the right hand side of (\ref{nontd}).
-\end{enumerate}
-
-
-A grammar file may contain a sequence of statements of the form (2) such that
+\item each $\tau_i$ is an identifier such that if $i \not=j$, then $\tau_i \not= \tau_j$;
+\item $\mathcal{L}$ is a  space-separated sequence  of the form $\beta_1~\ldots~\beta_m$ where
+  each  $\beta_i$ except possibly $\beta_1$   
+is one of the following forms:
 \begin{enumerate}
-\item each $\alpha_i$ is in one of the forms $b$ or $b\_r$ where 
-\begin{itemize}
-\item $b$ is a name of a non-terminal whose name appears in the left hand side of another statement of the form (2), or is an element of the set of identifiers $\{id,num\}\cup S_L$
-\item $r$ is a natural number in the range $1..n$
-\end{itemize}
-\item if $\alpha_i$ and $\alpha_j$ are two different elements of the sequence on the right hand side of (2), then 
-\begin{itemize}
-\item at least one of them is of the form $b\_r$, where $r$ is a natural number in the range $1..n$
-\item if $\alpha_i$ is of the form $b\_{r1}$ and $\alpha_j$ is of the form $b\_{r2}$, where $r1$ and $r2$ are two natural numbers in the range $1..n$, then $r1 \not= r2$.
-\end{itemize} 
-\item if there are two statements 
-$$ nt^1[\mathcal{L^1}] = \alpha_1^1~\alpha_2^1~\ldots~\alpha_{n_1}^1  $$
-and
-$$ nt^2[\mathcal{L^2}] = \alpha_1^2~\alpha_2^2~\ldots~\alpha_{n_2}^2  $$
-in the grammar file, then $nt^1$ is not of the form $nt^2\_r$, where $r$ is a natural number.
+\item an identifier that is an element of the sequence   $\tau_1\ldots \tau_n$;
+\item $f(c)$, where $f$ is a member of the set of identifiers $\{cut\_root\}$ and c is an element of  the sequence   $\tau_1\ldots \tau_n$.
+If $f = cut\_root$, $c$ must not be a lexeme type name. 
+\end{enumerate} 
+ If $\beta_1$ is of one of the forms (a) - (b), then $m$ must be equal to $1$, otherwise $\beta_1$ is an identifier.
 \end{enumerate}
- 
 
+
+We allow a shorthand $\alpha$ that stands for $\alpha(\alpha)$ to be an element of the sequence on the right hand side of the statement (\ref{nontd}). 
+
+A grammar file may contain a sequence of statements of the form (2), one per line, such that
+ each $\alpha_i$ is a  non-terminal  name occurring on the left hand side of another statement in the sequence.
 
 
 
 \subsection{Source File}\label{sf}
 A source file is a file containing arbitrary collection of ASCII characters.
 
-\subsection{Input Example}\label{ie} 
+\subsection{Input Examples}\label{ie}
+\subsubsection{Arithmetic Expression}
+In this example we will define an arithmetic expression whose operands are integer numbers  by means of lexicon and grammar defined in sections \ref{lf} and \ref{gf} and give an example of an arithmetic expression that can be used as contents of a source file.
+
+\subsubsubsection{Lexicon File}\label{alex}
+\begin{verbatim}
+num = -?([1-9][0-9]+|0)
+add_op = \+|-
+mult_op = :|\*
+left_paren = \(
+right_paren = \)
+\end{verbatim} 
+\subsubsubsection{Grammar File}\label{agram}
+
+\begin{verbatim}
+expr(T1) = T1
+T1(T2) = T2
+T1(add M1 M2) = T2(M1) add_op T1(M2)
+T2(mult Op1 Op2) = T3(Op1) mult_op T2(Op2)
+T2(T3) = T3
+T3(expr) = left_paren expr right_paren
+T3(num) = num   
+\end{verbatim}
+ 
+\subsubsubsection{Source File}\label{asf}
+\begin{verbatim}
+1+2*3
+\end{verbatim}
+\subsubsection{Chess Notation}
 In this example we will define Algebraic Chess Notation \cite{chess} by means of lexicon and grammar defined in sections \ref{lf} and \ref{gf} and give an example of a game described in this notation. 
-\subsubsection{Lexicon file}
+\subsubsubsection{Lexicon file}\label{clex}
 \begin{verbatim}
 figure = K|Q|R|B|N
 file = [a-h]
@@ -143,46 +197,46 @@ long_castling = 0-0-0
 short_castling = 0-0
 plus = \+
 pound_sign = #
-game_over = 1-0|1/2-1/2|0-1
+end = 1-0|1/2-1/2|0-1
 \end{verbatim}
-\subsubsection{Grammar file}
+\subsubsubsection{Grammar file}\label{cgram}
 \begin{verbatim}
-game[game move_d] = move_d 
-game[game move_d game] = move_d  spaces game
-move_d[move move_id move_1 move_2] = move_id space move_1 move_2
-move_d[game_over move move_id move_1] = move_id space move_1 game_over
-move[pawn_move cell] = cell
-move[move figure_spec cell] = figure_spec cell
-move[capture figure_spec cell] = figure_spec capture_char cell
-move[pawn_capture file cell] = file capture_char cell
-move[pawn_special_capture] = file capture_char cell en_passant
-move[promotion cell figure] = cell figure
-move[castling long_castling] = long_castling
-move[castling short_castling] = short_castling
-check[check move] = move plus
-checkmate[checkmate move] = move pound_sign
-figure_spec[fig figure] = figure
-figure_spec[fig figure file] = figure file
-figure_spec[fig figure file] = figure rank
-figure_spec[fig figure cell] = figure cell
+game(game move_d) = move_d 
+game(game move_d cut_root(G)) = move_d  spaces game(G)
+move_d(move move_id M1 M2) = move_id space move(M1) move(M2)
+move_d(game_over  move_id move) = move_id space move end
+move(pawn_move cell) = cell
+move(move figure_spec cell) = figure_spec cell
+move(capture figure_spec cell) = figure_spec capture_char cell
+move(pawn_capture file cell) = file capture_char cell
+move(pawn_special_capture) = file capture_char cell en_passant
+move(promotion cell figure) = cell figure
+move(castling long_castling) = long_castling
+move(castling short_castling) = short_castling
+check(check move) = move plus
+checkmate(checkmate move) = move pound_sign
+figure_spec(fig figure) = figure
+figure_spec(fig figure file) = figure file
+figure_spec(fig figure file) = figure rank
+figure_spec(fig figure cell) = figure cell
 \end{verbatim}
 
-\subsubsection{Source File}
+\subsubsubsection{Source File}\label{csf}
 \begin{comment}
 \begin{verbatim}
 
-1. e4 c5 2. Nf3 d6 3. Bb5+ Bd7 4. Bxd7+ Qxd7 5. c4 Nc6 6. Nc3 Nf6 
+1. e4 c5 2. Nf3 d6 3. Bb5 Bd7 4. Bxd7 Qxd7 5. c4 Nc6 6. Nc3 Nf6 
 7. 0-0 g6 8. d4 cxd4 9. Nxd4 Bg7 10. Nde2 Qe6  11. Nd5 Qxe4 
 12. Nc7+ Kd7 13. Nxa8 Qxc4 14. Nb6+ axb6 15. Nc3 Ra8 16. a4 Ne4 
 17. Nxe4 Qxe4 18. Qb3 f5 19. Bg5 Qb4 20. Qf7 Be5 21. h3 Rxa4 
 22. Rxa4 Qxa4 23. Qxh7 Bxb2 24. Qxg6 Qe4 25. Qf7 Bd4 26. Qb3 f4 
 27. Qf7 Be5 28. h4 b5 29. h5 Qc4 30. Qf5+ Qe6 31. Qxe6+ Kxe6 
-32. g3 fxg3 33. fxg3 b4 34. Bf4 Bd4+ 
+32. g3 fxg3 33. fxg3 b4 34. Bf4 Bd4 
 35. Kh1! b3 36. g4 Kd5 37. g5 e6 38. h6 Ne7 39. Rd1 e5 40. Be3 Kc4 
 41. Bxd4 exd4 42. Kg2 b2 43. Kf3 Kc3 44. h7 Ng6 45. Ke4 Kc2 
 46. Rh1 d3 47. Kf5 b1=Q 48. Rxb1 Kxb1 49. Kxg6 d2 50. h8=Q d1=Q 
-51. Qh7 b5 52. Kf6+ Kb2 53. Qh2+ Ka1 54. Qf4 b4 55. Qxb4 Qf3+ 
-56. Kg7 d5 57. Qd4+ Kb1 58. g6 Qe4 59. Qg1+ Kb2 60. Qf2+ Kc1 
+51. Qh7 b5 52. Kf6 Kb2 53. Qh2 Ka1 54. Qf4 b4 55. Qxb4 Qf3+ 
+56. Kg7 d5 57. Qd4 Kb1 58. g6 Qe4 59. Qg1 Kb2 60. Qf2+ Kc1 
 61. Kf6 d4 62. g7 1-0 
 \end{verbatim}
 \end{comment}
@@ -244,43 +298,80 @@ We will refer to each member of the lexing sequence as an \textit{annotated lexe
 
 
 \subsection{Parsing}\label{pars}
-Given a sequence of annotated lexemes  $(l_1,s_1),\ldots, (l_n,s_n)$ and a grammar file $F$, the goal of parsing is to produce an abstract syntax tree  as defined in this section. 
+Given a sequence of annotated lexemes  $(l_1,s_1),\ldots, (l_n,s_n)$ and a sequence $G$ of statements  from a grammar file, the goal of parsing is to produce an abstract syntax tree  as defined in this section. 
 
-Let $G$ be the sequence of statements in $F$. By $G_{BNF}$ we denote a BNF grammar obtained from $G$ by the following steps:
+By $G_{BNF}$ we denote a BNF grammar obtained from $G$ by 
+replacing each statement in $G$ of the form
+(\ref{nontd}) with a production rule
+\begin{equation*}\label{grule}
+nt = \alpha_1~\alpha_2~\ldots~\alpha_n 
+\end{equation*}
+
+\st
+The symbols of $G_{BNF}$ which are lexeme type names in $G$ are all and only terminal symbols of $G_{BNF}$.
+
+\st Let $\mathcal{T}$ be  a  derivation tree for $l_1\ldots l_n$ in $G_{BNF}$,  where  the starting symbol of the derivation  is the non-terminal occurring in the left hand side of the first statement in $G$. We will say that $\mathcal{T}_1$ is a \textit{subtree} of $\mathcal{T}$ if $\mathcal{T}_1$  a derivation tree whose nodes are a node $n$ in $\mathcal{T}$ and  all of $n$'s descendants in $\mathcal{T}$ and whose edges are all edges of $\mathcal{T}$ connecting a pair of nodes of $\mathcal{T}_1$. 
+
+For each node $N$ of $\mathcal{T}$ by $R_{N}$ we denote a production rule of $G_{BNF}$  that was applied to expand $N$ in $\mathcal{T}$.
+We will also say that the statement of $G$ 
+$$nt(\beta_1,\ldots,\beta_m) = \alpha_1(\tau_1)~\alpha_2(\tau_2)~\ldots~\alpha_n(\tau_n)$$
+\textit{corresponds to $N$}  if it was used to obtain $R_{N}$.
+
+
+Let $N$ be a node of $\mathcal{T}$ and, if $N$ is not a leaf node of $\mathcal{T}$, let 
+$$nt(\beta_1,\ldots,\beta_m) = \alpha_1(\tau_1)~\alpha_2(\tau_2)~\ldots~\alpha_n(\tau_n)$$
+be the statement of $G$ corresponding to $N$.
+
+For a sequence $\beta_{b_1}, \ldots, \beta_{b_t}$ such that $\{\beta_{b_1}, \ldots, \beta_{b_t}\} \subseteq \{\beta_1,\ldots, \beta_m\}$ and each $\beta_{b_i} \in \{\beta_{b_1}, \ldots, \beta_{b_t}\}$ is either a member of $\{\tau_1, \ldots, \tau_n\}$ or is of the form $f(c)$ where c is a member of $\{\tau_1, \ldots, \tau_n\}$, by 
+$A(\tau_{p_1}, \ldots, \tau_{p_t})$ we denote a sequence of derivation trees defined as follows: 
+\begin{enumerate}
+\item if $t=1$ and  $\beta_{p_1} = \tau_i$ for some $1 \le i \le n$, $A(\tau_{p_1})$ is a sequence containing one element which is a subtree of $\mathcal{T}$ rooted at  $i^{th}$ child of $N$.
+\item if $t=1$ and  $\beta_{p_1} = cut\_root(\tau_i)$ for some $1 \le i \le n$, $A(\tau_{p_1})$ is a sequence of  trees whose $j^{th}$ element is a subtree of $\mathcal{T}$  rooted at  $j^{th}$ child of the $i^{th}$ child of $N$.
+\item if $t>1$,  $A(\tau_{p_1}, \ldots, \tau_{p_t})$ is a sequence obtained by concatenating the sequences $A(\tau_{p_1}),\ldots,A(\tau_{p_t})$.
+\end{enumerate} 
+
+The \textit{abstract syntax tree corresponding to $N$} is defined as follows:
 
 \begin{enumerate}
-\item For each statement of the form \ref{nontd} in $G$, add new statements
+\item if $N$ is a leaf of $\mathcal{T}$ labeled with $l_i$, the abstract syntax tree is a tree whose only node is labeled with the pair $(l_i,s_i)$;
 
-$$nt_{k_1}[\mathcal{L}] = \alpha_1~\alpha_2~\ldots~\alpha_n$$ 
+\item if $N$ is not a leaf of $\mathcal{T}$, and $\beta_1=\tau_i$ for some $1\le i\le$ the abstract syntax tree is the tree corresponding to the $i^{th}$ child of $N$ (from left to right) in $\mathcal{T}$;
 
-$\ldots$
-
-$$nt_{k_n}[\mathcal{L}] = \alpha_1~\alpha_2~\ldots~\alpha_n$$
-
-where each of $nt_{k_1},...,nt_{k_n}$ is an element of a sequence on the right hand side of a statement in $G$.  
-\item Remove $[\mathcal{L}]$ from each statement of the form \ref{nontd}. 
-\end{enumerate}
-
-Let $S_0 \to S_1 \to \ldots \to S_n$ be a leftmost derivation of $l_1\ldots l_n$ in $G_{BNF}$, where $S_0$ is the non-terminal occurring in the left hand side of the first statement in $G$. 
-Let $$nt[id~\alpha_{k_1}~\alpha_{k_2}~\ldots~\alpha_{k_m}] = \alpha_1~\alpha_2~\ldots~\alpha_n  $$  be the statement in $G$ corresponding to the production rule of $G_{BNF}$ that can be used to derive $S_1$ from $S_0$.
-
-The \textit{abstract syntax tree} corresponding to the derivation is a list defined as follows:
-
+\item if $N$ is not a leaf of $\mathcal{T}$  and $\beta_1\not=\tau_i$ for all $1\le i\le$, the abstract syntax tree is defined as follows:
 \begin{enumerate}
-\item the first element of the list is $id$
-\item for each $1 \le i \le m$, the $(i+1)^{th}$ element of the list is an abstract syntax tree defined as follows:
-\begin{itemize}
-\item if $\alpha_i$ is a terminal in $G$, and  $(\alpha_i,s)$ is a member of the lexing sequence,
-      the abstract syntax tree is the list whose only element is   $(\alpha_i,s)$
-\item if $\alpha_i$ is a non-terminal, the abstract syntax tree corresponds to the left-most derivation
-$S_b \to \ldots \to S_e$, where $S_{b+1}$ is obtained from $S_{b}$ by expanding $\alpha_i$ and $S_e$ is the first element of  $S_0 \to S_1 \to \ldots \to S_n$   the non-terminals only  from $\alpha_{i+1}, \ldots, \alpha_{n}$.  
-  
-\end{itemize} 
-  
+\item the root $r$ of the tree is labeled by $\beta_1$;
+\item the children of $r$(from left to right) are roots of the trees $\mathcal{T}_1, \ldots \mathcal{T}_k$, where $k = |A(\beta_2,\ldots,\beta_m)|$ and for each $1 \le i\le k$,  $\mathcal{T}_i$ is an abstract syntax tree corresponding to the i-th element of $A(\beta_2,\ldots,\beta_m)$.
 \end{enumerate}
-\subsection{Example}
+ 
+\end{enumerate}
 
-The lexing sequence for the  lexicon file given in section \ref{lf} and source file given in section \ref{sf} is:
+The result of the parsing is defined to be the abstract syntax tree corresponding to the root of $\mathcal{T}$.  
+
+
+\subsection{Representation of trees as lists}
+Let $T$ be an abstract syntax tree.
+In the implementation, $T$ is  represented by a list as follows:
+\begin{enumerate}
+\item if $T$ is empty, it is represented by an empty lists
+\item it $T$ consists of only one node labeled by $r$, the corresponding list is $[r]$
+\item if a tree consists of more then one node, it is represented by the list $[r,t_1,\ldots,t_n]$, where $r$ is a label of the root of $T$ and  $t_i$ represents the subtree of $T$ rooted at $i^{th}$ child of $T$ 
+\end{enumerate}
+
+\subsection{Examples}
+\subsubsection{Arithmetic Expression Tree}
+
+The lexing sequence for the  lexicon file given in section \ref{alex} and source file given in section \ref{asf} is:
+\begin{verbatim}
+(num '1'), (add_op, '+'), (num, '2'), (mult_op,'*'), (num, '3') 
+\end{verbatim}
+
+Given the grammar file in section \ref{agram}, the corresponding abstract syntax tree is represented by the list:
+\begin{verbatim}
+[add, (num,'1'),[mult,(num,'2'),(num,'3')]]
+\end{verbatim}
+\subsubsection{Chess Game Tree}
+
+The lexing sequence for the  lexicon file given in section \ref{clex} and source file given in section \ref{csf} is:
 
 \begin{verbatim}
 (move_id, '1.'), (space, ' '), (cell, 'e4'), (space, ' '), 
@@ -294,31 +385,27 @@ The lexing sequence for the  lexicon file given in section \ref{lf} and source f
 \end{verbatim} 
 
 \st
-Given a grammar file in section \ref{gf}, the corresponding abstract syntax tree is:
+Given the grammar file in section \ref{cgram}, the corresponding abstract syntax tree  is represented by the list:
 
 \begin{verbatim}
 [ game,
       [move, [(move_id '1.')], [pawn_move [(cell 'e4')] ], 
                                 [pawn_move [(cell 'e5')] ] ],
-      [game, 
-           [move, [(move_id '2.')], [move [fig [(figure 'Q')]] 
+       
+      [move, [(move_id '2.')], [move [fig [(figure 'Q')]] 
                                      [(cell 'h5')] ], 
                                      [move, [fig [(figure 'N')]], 
                                      [(cell 'c6')]]],
-           [game,
-               [move, [(move_id '3.')], [move [fig [(figure 'B')]],
+           
+      [move, [(move_id '3.')], [move [fig [(figure 'B')]],
                                                [(cell 'c4')] ], 
                                          [move, [fig [(figure 'N') ]], 
-                                         [(cell 'f6')]]
-               ],
-               [game,
-                       [checkmate   [move, [(move_id '4.')],
+                                         [(cell 'f6')]]],
+               
+      [checkmate   [move, [(move_id '4.')],
                                        [capture [fig [(figure 'Q')] ], 
                                        [(cell 'f7')] ] ] ]
-               ]
-           ]
-            
-      ]  
+               
 ]
 \end{verbatim}
 
