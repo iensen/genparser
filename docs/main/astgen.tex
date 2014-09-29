@@ -310,7 +310,7 @@ nt = \alpha_1~\alpha_2~\ldots~\alpha_n
 \st
 The symbols of $G_{BNF}$ which are lexeme type names in $G$ are all and only terminal symbols of $G_{BNF}$.
 
-\st Let $\mathcal{T}$ be  a  derivation tree for $l_1\ldots l_n$ in $G_{BNF}$,  where  the starting symbol of the derivation  is the non-terminal occurring in the left hand side of the first statement in $G$. We will say that $\mathcal{T}_1$ is a \textit{subtree} of $\mathcal{T}$ if $\mathcal{T}_1$  a derivation tree whose nodes are a node $n$ in $\mathcal{T}$ and  all of $n$'s descendants in $\mathcal{T}$ and whose edges are all edges of $\mathcal{T}$ connecting a pair of nodes of $\mathcal{T}_1$. 
+\st Let $\mathcal{T}$ be  a  derivation tree for $l_1\ldots l_n$ in $G_{BNF}$,  where  the starting symbol of the derivation  is the non-terminal occurring in the left hand side of the first statement in $G$. We will say that $\mathcal{T}_1$ is a \textit{subtree} of $\mathcal{T}$ if $\mathcal{T}_1$  a derivation tree whose nodes are a node $n$ in $\mathcal{T}$ and  all of $n$'s descendants in $\mathcal{T}$ and whose edges are all and only edges of $\mathcal{T}$ connecting a pair of nodes of $\mathcal{T}_1$. 
 
 For each node $N$ of $\mathcal{T}$ by $R_{N}$ we denote a production rule of $G_{BNF}$  that was applied to expand $N$ in $\mathcal{T}$.
 We will also say that the statement of $G$ 
@@ -325,7 +325,7 @@ be the statement of $G$ corresponding to $N$.
 For a sequence $\beta_{b_1}, \ldots, \beta_{b_t}$ such that $\{\beta_{b_1}, \ldots, \beta_{b_t}\} \subseteq \{\beta_1,\ldots, \beta_m\}$ and each $\beta_{b_i} \in \{\beta_{b_1}, \ldots, \beta_{b_t}\}$ is either a member of $\{\tau_1, \ldots, \tau_n\}$ or is of the form $f(c)$ where c is a member of $\{\tau_1, \ldots, \tau_n\}$, by 
 $A(\tau_{p_1}, \ldots, \tau_{p_t})$ we denote a sequence of derivation trees defined as follows: 
 \begin{enumerate}
-\item if $t=1$ and  $\beta_{p_1} = \tau_i$ for some $1 \le i \le n$, $A(\tau_{p_1})$ is a sequence containing one element which is a subtree of $\mathcal{T}$ rooted at  $i^{th}$ child of $N$.
+\item if $t=1$ and  $\beta_{p_1} = \tau_i$ for some $1 \le i \le n$, $A(\tau_{p_1})$ is a sequence containing one element which is a subtree of $\mathcal{T}$ rooted at  the $i^{th}$ child of $N$.
 \item if $t=1$ and  $\beta_{p_1} = cut\_root(\tau_i)$ for some $1 \le i \le n$, $A(\tau_{p_1})$ is a sequence of  trees whose $j^{th}$ element is a subtree of $\mathcal{T}$  rooted at  $j^{th}$ child of the $i^{th}$ child of $N$.
 \item if $t>1$,  $A(\tau_{p_1}, \ldots, \tau_{p_t})$ is a sequence obtained by concatenating the sequences $A(\tau_{p_1}),\ldots,A(\tau_{p_t})$.
 \end{enumerate} 
@@ -335,7 +335,7 @@ The \textit{abstract syntax tree corresponding to $N$} is defined as follows:
 \begin{enumerate}
 \item if $N$ is a leaf of $\mathcal{T}$ labeled with $l_i$, the abstract syntax tree is a tree whose only node is labeled with the pair $(l_i,s_i)$;
 
-\item if $N$ is not a leaf of $\mathcal{T}$, and $\beta_1=\tau_i$ for some $1\le i\le$ the abstract syntax tree is the tree corresponding to the $i^{th}$ child of $N$ (from left to right) in $\mathcal{T}$;
+\item if $N$ is not a leaf of $\mathcal{T}$, and $\beta_1=\tau_i$ for some $1\le i\le n$ the abstract syntax tree is the tree corresponding to the $i^{th}$ child of $N$ (from left to right) in $\mathcal{T}$;
 
 \item if $N$ is not a leaf of $\mathcal{T}$  and $\beta_1\not=\tau_i$ for all $1\le i\le$, the abstract syntax tree is defined as follows:
 \begin{enumerate}
