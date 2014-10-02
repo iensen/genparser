@@ -1,6 +1,7 @@
 \documentclass[a4paper,10pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{amsthm}
+\usepackage{amssymb}
 \usepackage{amsmath}
 \newtheorem{definition}{Definition}
 \newtheorem{claim}{Claim}
@@ -14,6 +15,8 @@
 \usepackage{comment}
 \usepackage{calrsfs}
 \usepackage{latexsym}
+\usepackage{tikz}
+\usepackage{tikz-qtree}
 \usepackage{mathrsfs}
 \usepackage{url}
 \usepackage{titlesec}
@@ -113,39 +116,52 @@ where $lexem\_type\_name$ is an identifier and $regex$ is a regular expression f
 
 We will say that statement (\ref{lexdef}) \textit{defines} a lexem type named $lexem\_type\_name$.
 
-Lexicon file may contain multiple declarations of the form (\ref{lexdef}), one per line, where no lexem type name occurs in the left hand side of a statement more than once, and no lexem type name is a member of the set $\{id, num\}  $.
+Lexicon file may contain multiple declarations of the form (\ref{lexdef}), one per line, where no lexem type name occurs in the left hand side of a statement more than once, and no lexem type name is a member of the set $\{id, num, space\}  $.
+
  
 \subsection{Grammar File}\label{gf}
 A grammar file is an ASCII file that contains a specification of non-terminals occurring in the produced abstract syntax tree as well as the desired structure of the tree. Every grammar file must be associated with a lexicon file. We will refer to the set of lexem type names defined in the file as $S_L$.  
 
+
 Non-terminals are specified  by  statements of the form 
 
 \begin{equation}\label{nontd}
-nt(\mathcal{L}) = \alpha_1(\tau_1)~\alpha_2(\tau_2)~\ldots~\alpha_n(\tau_n) 
+nt(\beta_1~\ldots~\beta_m) = \alpha_1(\tau_1)~\ldots~\alpha_n(\tau_n) 
 \end{equation}
 where 
 \begin{enumerate}
-\item $nt$ is an identifier which is not a member of the set $\{id,num\}\cup S_L$ sometimes referred to as a \textit{non-terminal name};
+\item $nt$ is an identifier which is not a member of the set $\{id, num, space\}\cup S_L$ sometimes referred to as a \textit{non-terminal symbol}, or simply \textit{non-terminal};
+\item $n\ge 1$;
 \item each $\alpha_i$  is an identifier;
-\item each $\tau_i$ is an identifier such that if $i \not=j$, then $\tau_i \not= \tau_j$;
-\item $\mathcal{L}$ is a  space-separated sequence  of the form $\beta_1~\ldots~\beta_m$ where
-  each  $\beta_i$ except possibly $\beta_1$   
-is one of the following forms:
+\item each $\tau_i$ is an identifier;
+\item $\beta_1~\ldots~\beta_m$ ($m \ge 1$) is a sequence of distinct identifiers, 
+such that each  $\beta_i$ except possibly $\beta_1$   
+is in one of the following forms:
 \begin{enumerate}
 \item an identifier that is an element of the sequence   $\tau_1\ldots \tau_n$;
 \item $f(c)$, where $f$ is a member of the set of identifiers $\{cut\_root\}$ and c is an element of  the sequence   $\tau_1\ldots \tau_n$.
-If $f = cut\_root$, $c$ must not be a lexeme type name. 
+If $f = cut\_root$, $c$ must not be a lexeme type name;
 \end{enumerate} 
- If $\beta_1$ is of one of the forms (a) - (b), then $m$ must be equal to $1$, otherwise $\beta_1$ is an identifier.
+\item  if $\beta_i$ is of one of the forms $\tau_j$ or $f(\tau_j)$, then  $\tau_j$ must occur in the sequence  $\tau_1\ldots \tau_n$ exactly once;
+\item if $\beta_1$ is of one of the forms $\tau_j$ or $f(\tau_j)$, then $m$ must be equal to $1$, otherwise $\beta_1$ is an identifier also referred to as \textit{a label}.
 \end{enumerate}
 
 
 We allow a shorthand $\alpha$ that stands for $\alpha(\alpha)$ to be an element of the sequence on the right hand side of the statement (\ref{nontd}). 
 
-A grammar file may contain a sequence of statements of the form (2), one per line, such that
- each $\alpha_i$ is a  non-terminal  name occurring on the left hand side of another statement in the sequence.
 
+We will refer to the sequence of statements of the form(2) as \textit{a grammar}, if each $\alpha_i$ is a  non-terminal  name occurring on the left hand side of another statement in the sequence, or a member of the set$\{id, num, space\}\cup S_L$ . The non-terminal symbols occurring in the statements of the grammar are referred to as the \textit{non-terminal symbols} (or the \textit{non-terminals}) \textit{of the grammar}. 
+The non-terminal symbol occurring on the left hand side of the first statement of $G$ is referred to as the \textit{starting symbol of the grammar}. The members of $S_L$ are referred to as the \textit{terminal symbols} (or the \textit{terminals}) \textit{of the grammar}.  Both terminals and non-terminals of a grammar are referred to as \textit{symbols of the grammar}. 
+Finally, the labels occurring in the statements of a grammar are referred to as the \textit{labels of the grammar}.
 
+Let $G$ be a grammar.
+We define a leveling function $||$ of $G$ that maps non-terminals of $G$ onto a set of non-negative integers in the range [0..n].
+A leveling function is called reasonable if for each statement of the form 
+$$nt(\beta_1~\ldots~\beta_m) = \alpha_1(\tau_1)$$
+such that  $\alpha_1$ is a non-terminal, $|nt|> |\alpha_1|$.
+$G$ is called \textit{stratified}, if there exists a reasonable leveling of $G$.
+  
+A grammar file contains a stratified grammar, one  statement per line.
 
 \subsection{Source File}\label{sf}
 A source file is a file containing arbitrary collection of ASCII characters.
@@ -188,7 +204,6 @@ rank = [1-8]
 cell = [a-h][1-8]
 capture_char = x
 space = \s
-spaces = \s+
 dot = \.
 en_passant = e\.p\.
 natural_number = [1-9][0-9]+
@@ -253,7 +268,7 @@ The output is obtained in two steps
 \end{enumerate}
 
 \subsection{Lexing}\label{lex}
-In addition to thee  set of lexeme types  declared in the lexicon file, denoted by $S_L$, we introduce two more lexemes: $id$ and $num$.  For each lexeme $l$, we define a regular expression $\mathcal{R}_L(l)$ as follows:
+In addition to thee  set of lexeme types  declared in the lexicon file, denoted by $S_L$, we introduce two more lexemes: $id$, $num$ and $spaces$.  For each lexeme $l$, we define a regular expression $\mathcal{R}_L(l)$ as follows:
 
 \begin{enumerate}
 \item if $l \in S_L$, $\mathcal{R}_L(l) = expr$, where $expr$ is the regular expression  on the right hand side of the statement
@@ -263,7 +278,8 @@ appearing in the lexicon file;
                                $$[a-z][a-z\_]+$$
 \item if $l$ is $num$, $\mathcal{R}_L(l)$ is  
                 $$-?[1-9][0-9]+ |-?0\backslash.[0-9]+ | -?[1-9][0-9]+\backslash.[0-9]+$$ 
-
+\item if $l$ is $spaces$, $\mathcal{R}_L(l)$ is  
+                $$\backslash s+$$ 
 \end{enumerate}
 
 
@@ -290,7 +306,7 @@ The \textit{lexing sequence} of $I$ with respect to the lexicon file $L$ is a se
 \end{enumerate}
 
 
-We will refer to each member of the lexing sequence as an \textit{annotated lexeme}.
+We will refer to each element of the lexing sequence as an \textit{annotated lexeme}.
 
 
 
@@ -298,63 +314,102 @@ We will refer to each member of the lexing sequence as an \textit{annotated lexe
 
 
 \subsection{Parsing}\label{pars}
-Given a sequence of annotated lexemes  $(l_1,s_1),\ldots, (l_n,s_n)$ and a sequence $G$ of statements  from a grammar file, the goal of parsing is to produce an abstract syntax tree  as defined in this section. 
+Given a sequence of annotated lexemes  $(l_1,s_1),\ldots, (l_n,s_n)$ and a grammar $G$  the goal of parsing is to produce an abstract syntax tree  as defined in this section. 
 
-By $G_{BNF}$ we denote a BNF grammar obtained from $G$ by 
-replacing each statement in $G$ of the form
-(\ref{nontd}) with a production rule
-\begin{equation*}\label{grule}
-nt = \alpha_1~\alpha_2~\ldots~\alpha_n 
-\end{equation*}
+\subsection{Abstract Syntax Trees for a  Grammar}
 
-\st
-The symbols of $G_{BNF}$ which are lexeme type names in $G$ are all and only terminal symbols of $G_{BNF}$.
+ We say that $T$ is \textit{an abstract syntax tree for a grammar $G$} if $T$ is a finite rooted ordered\footnote{A finite tree  is \textit{ordered} if the children of each node of the tree are pairwise distinct and totally ordered. That is, we can define a correspondence between the children of a node $V$ of the tree and the set of natural numbers \{1,\ldots,\ldots,$n$\}, and refer to the children of $V$  as $1^{st}, 2^{nd}, \ldots, n^{th}$ child of $V$.}  tree  whose non-leaf nodes are labeled by  labels of $G$ and whose leafs are labeled by terminals of $G$.  
 
-\st Let $\mathcal{T}$ be  a  derivation tree for $l_1\ldots l_n$ in $G_{BNF}$,  where  the starting symbol of the derivation  is the non-terminal occurring in the left hand side of the first statement in $G$. We will say that $\mathcal{T}_1$ is a \textit{subtree} of $\mathcal{T}$ if $\mathcal{T}_1$  a derivation tree whose nodes are a node $n$ in $\mathcal{T}$ and  all of $n$'s descendants in $\mathcal{T}$ and whose edges are all and only edges of $\mathcal{T}$ connecting a pair of nodes of $\mathcal{T}_1$. 
-
-For each node $N$ of $\mathcal{T}$ by $R_{N}$ we denote a production rule of $G_{BNF}$  that was applied to expand $N$ in $\mathcal{T}$.
-We will also say that the statement of $G$ 
-$$nt(\beta_1,\ldots,\beta_m) = \alpha_1(\tau_1)~\alpha_2(\tau_2)~\ldots~\alpha_n(\tau_n)$$
-\textit{corresponds to $N$}  if it was used to obtain $R_{N}$.
-
-
-Let $N$ be a node of $\mathcal{T}$ and, if $N$ is not a leaf node of $\mathcal{T}$, let 
-$$nt(\beta_1,\ldots,\beta_m) = \alpha_1(\tau_1)~\alpha_2(\tau_2)~\ldots~\alpha_n(\tau_n)$$
-be the statement of $G$ corresponding to $N$.
-
-For a sequence $\beta_{b_1}, \ldots, \beta_{b_t}$ such that $\{\beta_{b_1}, \ldots, \beta_{b_t}\} \subseteq \{\beta_1,\ldots, \beta_m\}$ and each $\beta_{b_i} \in \{\beta_{b_1}, \ldots, \beta_{b_t}\}$ is either a member of $\{\tau_1, \ldots, \tau_n\}$ or is of the form $f(c)$ where c is a member of $\{\tau_1, \ldots, \tau_n\}$, by 
-$A(\tau_{p_1}, \ldots, \tau_{p_t})$ we denote a sequence of derivation trees defined as follows: 
-\begin{enumerate}
-\item if $t=1$ and  $\beta_{p_1} = \tau_i$ for some $1 \le i \le n$, $A(\tau_{p_1})$ is a sequence containing one element which is a subtree of $\mathcal{T}$ rooted at  the $i^{th}$ child of $N$.
-\item if $t=1$ and  $\beta_{p_1} = cut\_root(\tau_i)$ for some $1 \le i \le n$, $A(\tau_{p_1})$ is a sequence of  trees whose $j^{th}$ element is a subtree of $\mathcal{T}$  rooted at  $j^{th}$ child of the $i^{th}$ child of $N$.
-\item if $t>1$,  $A(\tau_{p_1}, \ldots, \tau_{p_t})$ is a sequence obtained by concatenating the sequences $A(\tau_{p_1}),\ldots,A(\tau_{p_t})$.
-\end{enumerate} 
-
-The \textit{abstract syntax tree corresponding to $N$} is defined as follows:
+Let $T_1$ and $T_2$ be two trees of $G$. We say $T_1$ is a \textit{subtree} of $T_2$ if the following three conditions hold:
 
 \begin{enumerate}
-\item if $N$ is a leaf of $\mathcal{T}$ labeled with $l_i$, the abstract syntax tree is a tree whose only node is labeled with the pair $(l_i,s_i)$;
-
-\item if $N$ is not a leaf of $\mathcal{T}$, and $\beta_1=\tau_i$ for some $1\le i\le n$ the abstract syntax tree is the tree corresponding to the $i^{th}$ child of $N$ (from left to right) in $\mathcal{T}$;
-
-\item if $N$ is not a leaf of $\mathcal{T}$  and $\beta_1\not=\tau_i$ for all $1\le i\le$, the abstract syntax tree is defined as follows:
-\begin{enumerate}
-\item the root $r$ of the tree is labeled by $\beta_1$;
-\item the children of $r$(from left to right) are roots of the trees $\mathcal{T}_1, \ldots \mathcal{T}_k$, where $k = |A(\beta_2,\ldots,\beta_m)|$ and for each $1 \le i\le k$,  $\mathcal{T}_i$ is an abstract syntax tree corresponding to the i-th element of $A(\beta_2,\ldots,\beta_m)$.
+\item the root of $T_2$ is a node of $T_1$;
+\item the nodes of $T_2$  different from $r$ are the descendants of $r$ in $T_1$;
+\item every edge of $T_2$ is an edge of $T_1$.
 \end{enumerate}
+
+\begin{example}\label{ex1}
+Consider the tree $T$ shown below\footnote{The children of nodes in the tree are shown from left to right according to their order.} :
+\begin{center}
+\Tree [.$add$ $(num,1)$ [.$mult$ $(num,2)$  $(num,3)$ ]  [.$mult$ $(num,4)$  $(num,5)$ ]]   
+\end{center}
+
+The tree $T$ has 8 subtrees: $T$ itself, the five trees containing only one node which is a leaf of $T$ and two trees rooted at the nodes labeled by $mult$ shown below:
+
+\begin{center}
+\Tree [.$mult$ $(num,2)$  $(num,3)$ ]    \Tree [.$mult$ $(num,4)$  $(num,5)$ ]  
+\end{center}
+
  
-\end{enumerate}
+\end{example}
+If $T$ is an abstract tree of $G$, by $cut\_root$ we define a sequence of trees i-th of which is rooted at i-th child of the root of $T$.
 
-The result of the parsing is defined to be the abstract syntax tree corresponding to the root of $\mathcal{T}$.  
+\begin{example}
+If $T$ is a tree given in example \ref{ex1}, $cut\_root$ is a sequence of three trees shown below (from left to right):
+\begin{center}
+\Tree [.$(num,1)$ ]  \Tree [.$mult$ $(num,2)$  $(num,3)$ ]  \Tree [.$mult$ $(num,4)$  $(num,5)$ ]
+ \end{center}
+\end{example}
+ 
+
+\subsection{Parsing output specification}
+
+Let $G$ be a stratified grammar with a symbol $S$,  $(l_1,s_1),\ldots, (l_n,s_n)$ be a lexing sequence denoted by $L$, $b$ and $e$ be two natural numbers such that $1 \le b \le e \le n$.
 
 
-\subsection{Representation of trees as lists}
-Let $T$ be an abstract syntax tree.
-In the implementation, $T$ is  represented by a list as follows:
+ By $R_{G,L}(S,b,e)$ we denote an abstract syntax tree for $G$ satisfying one of the following two conditions: 
 \begin{enumerate}
-\item if $T$ is empty, it is represented by an empty lists
-\item it $T$ consists of only one node labeled by $r$, the corresponding list is $[r]$
-\item if a tree consists of more then one node, it is represented by the list $[r,t_1,\ldots,t_n]$, where $r$ is a label of the root of $T$ and  $t_i$ represents the subtree of $T$ rooted at $i^{th}$ child of $T$ 
+\item if $b = e$ and $S$ is  $l_b$, and there is a statement in $G$ of the form
+  $$ S(\tau_1) = l_b(\tau_1) $$
+ $R_{G,L}(S,b,e)$ contains only one node labeled by $(l_b, s_b)$; 
+ 
+\item if S is a non-terminal of $G$, and there is a statement in $G$ of the form 
+$$ S(\beta_1 \ldots \beta_m) = \alpha_1(\tau_1) \ldots  \alpha_n(\tau_n)  $$
+where 
+\begin{itemize}
+\item $l_b \dots l_e = l^1_1,l^1_2 \ldots l^1_{k_1} \ldots l^n_1 \ldots l^n_{k_n}$ for some  $1 \le k_1,\ldots,k_n \le (e-b+1)$,
+\item for each $1\le i \le n$ there exists a tree denoted by $$R_{G,L}(\alpha_i,k_1+ \ldots + k_{i-1}+1, k_1+ \ldots + k_{i})$$
+\end{itemize}
+then
+\begin{itemize}
+\item if $\beta_1 = \tau_j$ for some $ 1\le j \le n$, then
+
+  $R_{G,L}(S,b,e)$ is $R_{G,L}(\alpha_j,k_1+ \ldots + k_{j-1}+1, k_1+ \ldots + k_{j})$  
+
+\item if $\beta_1 \not= \tau_j$ and  $\beta_1 \not= cut\_root(\tau_j)$   for all $ 1\le j \le n$, 
+
+  then $R_{G,L}(S,b,e)$ is a tree whose root $r$ is labeled by $\beta_1$ and the tree $T_i$ whose root is the $i^{th}$ child of $r$ is obtained as follows:
+ \begin{enumerate}
+ \item Let $f:\{2..m\} \to \{1..n\}$ be a function such that for any $j \in \{2..m\}$ $\beta_j = \tau_{f(j)}$ or  $\beta_j = cut\_root(\tau_{f(j)})$.
+ \item For each $1\le j \le n$ let $A_j$ be an abstract syntax tree denoted by $R(\alpha_j,k_1+ \ldots + k_{j-1}+1, k_1+ \ldots + k_{j})$
+ \item Let $c:\{2..m\} \to \mathbb{N}$ be a function defined as follows:
+
+\[
+c(u) = 
+\begin{cases}
+             1,& \beta_u \in \{\tau_1 \dots \tau_n\} \\
+  \text{the number of children of the root of } T_{f(u)},          & \text{otherwise}
+\end{cases}
+\]
+\item Let $p$ be the largest number in the range $[1..m]$ such that $$c(2) + \ldots + c(p) < i$$
+\item if $\beta_{p+1}$ is of the form $cut\_root(\tau_j)$, $T_i$ is the $(i - (c(2) + \ldots + c(p)))^{th}$ child of $A_p$;
+      otherwise $T_i$ is $A_p$
+
+ \end{enumerate}
+ \end{itemize}
+ \end{enumerate}
+
+We will refer  $R_{G,L}(S,b,e)$ as  an abstract syntax tree of $G$ \textit{matching the lexing sequence $l_b, \ldots, l_e$ on $S$}. 
+The result of the parsing is defined to be the abstract syntax tree matching the lexing sequence $l_b, \ldots, l_e$ on the starting symbol of $G$.  
+
+
+\subsection{Trees Representation}
+Let $T$ be an abstract syntax tree .
+In the implementation, $T$ is  represented as follows:
+\begin{enumerate}
+\item if $T$ is empty, it is represented by an empty list;
+\item it $T$ consists of only one node labeled by a pair $(l_i,s_i)$, it is represented the pair $(l_i,s_i)$;
+\item if a tree consists of more then one node, it is represented by the list $[r,t_1,\ldots,t_n]$, where $r$ is a label of the root of $T$ and  $t_i$ is the representation of the subtree of $T$ rooted at $i^{th}$ child of $T$ 
 \end{enumerate}
 
 \subsection{Examples}
