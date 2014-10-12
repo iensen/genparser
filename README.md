@@ -12,9 +12,9 @@ CONTENTS
 
 -src/astgen/ - implementation consisting of several python modules
 
--.gitignore - list of files ignores by 
+-.gitignore - list of files ignores by this git repository
 
--README.md - this readme file
+-README.md -- this readme file
 
 PREREQUISITES
 =============
