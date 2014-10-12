@@ -42,8 +42,7 @@ An optional argument -n tells the lexer not to add built-in lexems (by default, 
 EXAMPLES
 =======
 
-The examples of lexicon, grammar and input files can be found in 
-src/astgen/tests folder of the distribution.
+Examples can be found in  src/astgen/tests folder of the distribution.
 
 The execution trace for two of them are given below: 
 ```prolog
