@@ -39,7 +39,7 @@ Grammar file should contain grammar rules, one per line, as defined in section 2
 Input file is an ASCII file as defined in section 3.3 of 
 https://github.com/iensen/genparser/blob/master/docs/main/astgen.pdf?raw=true
 
-An optional argument -s tells the parser not to skip spaces (by default, all the lexems with type 'spaces' are removed from the sequence before parsing phase).
+An optional argument -s tells the parser not to skip spaces (by default, all the lexems with type 'spaces' are removed from the sequence before parsing).
 
 An optional argument -n tells the lexer not to add built-in lexems (by default, lexems  types 'num', 'id' and 'spaces' are added to the lexicon).
 
