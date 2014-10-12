@@ -29,9 +29,9 @@ EXECUTE
 =======
 
 The command line syntax is:
-
+```
 python astgen.py path_to_lexicon_file path_to_grammar_file path_to_input_file [-s] [-n]
-
+```
 Lexicon file should contain declaration of lexem types, one per line, as defined in section 2.1 of https://github.com/iensen/genparser/blob/master/docs/main/astgen.pdf?raw=true
 
 Grammar file should contain grammar rules, one per line, as defined in section 2.2 of https://github.com/iensen/genparser/blob/master/docs/main/astgen.pdf?raw=true
