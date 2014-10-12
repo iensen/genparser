@@ -8,11 +8,11 @@ https://github.com/iensen/genparser/archive/master.zip
 
 CONTENTS
 ================
--docs/main/ - specification
+-docs/main/ -- specification
 
--src/astgen/ - implementation consisting of several python modules
+-src/astgen/ -- implementation consisting of several python modules
 
--.gitignore - list of files ignores by this git repository
+-.gitignore --  the  files ignored by this git repository
 
 -README.md -- this readme file
 
