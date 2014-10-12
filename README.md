@@ -1,8 +1,4 @@
 
-
-The project is an implementation of a generic parser that takes a lexicon file, a grammar file 
-and an input file and produces an abstract syntax tree.
-
 To start using the project, download the zip archive:
 https://github.com/iensen/genparser/archive/master.zip
 
