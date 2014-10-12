@@ -217,9 +217,9 @@ end = 1-0|1/2-1/2|0-1
 \subsubsubsection{Grammar file}\label{cgram}
 \begin{verbatim}
 game(game move_d) = move_d 
-game(game move_d cut_root(G)) = move_d  spaces game(G)
-move_d(move move_id M1 M2) = move_id space move(M1) move(M2)
-move_d(game_over  move_id move) = move_id space move end
+game(game move_d cut_root(G)) = move_d   game(G)
+move_d(move move_id M1 M2) = move_id  move(M1) move(M2)
+move_d(game_over  move_id move) = move_id move end
 move(pawn_move cell) = cell
 move(move figure_spec cell) = figure_spec cell
 move(capture figure_spec cell) = figure_spec capture_char cell
@@ -232,7 +232,7 @@ check(check move) = move plus
 checkmate(checkmate move) = move pound_sign
 figure_spec(fig figure) = figure
 figure_spec(fig figure file) = figure file
-figure_spec(fig figure file) = figure rank
+figure_spec(fig figure rank) = figure rank
 figure_spec(fig figure cell) = figure cell
 \end{verbatim}
 
@@ -275,20 +275,20 @@ In addition to thee  set of lexeme types  declared in the lexicon file, denoted 
 $$l = expr$$
 appearing in the lexicon file;
 \item if $l$ is $id$, $\mathcal{R}_L(l)$ is 
-                               $$[a-z][a-z\_]+$$
+                               $$[a-zA-Z]\backslash w^*$$
 \item if $l$ is $num$, $\mathcal{R}_L(l)$ is  
-                $$-?[1-9][0-9]+ |-?0\backslash.[0-9]+ | -?[1-9][0-9]+\backslash.[0-9]+$$ 
+                $$-?[1-9][0-9]* |-?0?\backslash.[0-9]+ | -?[1-9][0-9]*\backslash.[0-9]+$$ 
 \item if $l$ is $spaces$, $\mathcal{R}_L(l)$ is  
                 $$\backslash s+$$ 
 \end{enumerate}
 
 
 We will say that a string $S$ \textit{matches} a regular expression $E$ if $S$ is a member of the set of strings specified by  the python regular expression 
-$$\wedge E \$ $$
+$$\wedge (E) \backslash Z $$
 In other words, $S$ matches $E$ if the following python code prints \texttt{True}, when being run on a   python3.4 interpreter:
 \begin{alltt}
 import re
-regex = re.compile(r"^\(E\)$")
+regex = re.compile(r"^\((E)\)\textbackslash{}Z")
 print(regex.match("\(S\)") != None)
 \end{alltt}
 
@@ -359,9 +359,9 @@ Let $G$ be a stratified grammar with a symbol $S$,  $(l_1,s_1),\ldots, (l_n,s_n)
 
  By $R_{G,L}(S,b,e)$ we denote an abstract syntax tree for $G$ satisfying one of the following two conditions: 
 \begin{enumerate}
-\item if $b = e$ and $S$ is  $l_b$, and there is a statement in $G$ of the form
-  $$ S(\tau_1) = l_b(\tau_1) $$
- $R_{G,L}(S,b,e)$ contains only one node labeled by $(l_b, s_b)$; 
+\item if $b = e$ and $S$ is  $l_b$, 
+ $R_{G,L}(S,b,e)$ contains only one node labeled by $(l_b, s_b)$
+
  
 \item if S is a non-terminal of $G$, and there is a statement in $G$ of the form 
 $$ S(\beta_1 \ldots \beta_m) = \alpha_1(\tau_1) \ldots  \alpha_n(\tau_n)  $$
@@ -400,7 +400,7 @@ c(u) =
  \end{enumerate}
 
 We will refer  $R_{G,L}(S,b,e)$ as  an abstract syntax tree of $G$ \textit{matching the lexing sequence $l_b, \ldots, l_e$ on $S$}. 
-The result of the parsing is defined to be the abstract syntax tree matching the lexing sequence $l_b, \ldots, l_e$ on the starting symbol of $G$.  
+The result of the parsing is defined to be the abstract syntax tree matching the lexing sequence $l_1, \ldots, l_n$ on the starting symbol of $G$.  
 
 
 \subsection{Trees Representation}
@@ -408,7 +408,7 @@ Let $T$ be an abstract syntax tree .
 In the implementation, $T$ is  represented as follows:
 \begin{enumerate}
 \item if $T$ is empty, it is represented by an empty list;
-\item it $T$ consists of only one node labeled by a pair $(l_i,s_i)$, it is represented the pair $(l_i,s_i)$;
+\item if $T$ consists of only one node labeled by $l$, it is represented the label $l$;
 \item if a tree consists of more then one node, it is represented by the list $[r,t_1,\ldots,t_n]$, where $r$ is a label of the root of $T$ and  $t_i$ is the representation of the subtree of $T$ rooted at $i^{th}$ child of $T$ 
 \end{enumerate}
 
@@ -429,18 +429,18 @@ Given the grammar file in section \ref{agram}, the corresponding abstract syntax
 The lexing sequence for the  lexicon file given in section \ref{clex} and source file given in section \ref{csf} is:
 
 \begin{verbatim}
-(move_id, '1.'), (space, ' '), (cell, 'e4'), (space, ' '), 
-(cell, 'e5'), (spaces, ' '), (move_id, '2.'), (space, ' '), 
+(move_id, '1.'), (spaces, ' ') (cell, 'e4'), (spaces, ' '), 
+(cell, 'e5'), (spaces, ' '), (move_id, '2.'), (spaces, ' '), 
 (figure, 'Q'), (cell, 'h5'), (space, ' '), (figure, 'B'),
-(cell, 'c6'), (spaces, ' '), (move_id, '3.'), (space, ' '), 
-(figure, 'B'), (cell, 'c4'), (space, ' '),  (figure, 'N'), 
-(cell, 'f6'), (spaces, ' '), (move_id, '4.'), (space, ' '), 
+(cell, 'c6'), (spaces, ' '), (move_id, '3.'), (spaces, ' '), 
+(figure, 'B'), (cell, 'c4'), (spaces, ' '),  (figure, 'N'), 
+(cell, 'f6'), (spaces, ' '), (move_id, '4.'), (spaces, ' '), 
 (figure, 'Q'), (capture_char, 'x'), (cell, 'f7'),  
 (pound_sign, '#')
 \end{verbatim} 
 
 \st
-Given the grammar file in section \ref{cgram}, the corresponding abstract syntax tree  is represented by the list:
+Given the grammar file in section \ref{cgram}, the corresponding abstract syntax tree  is represented by the list\footnote{All lexemes annotated as spaces are dropped from the lexing sequence before parsing is done}:
 
 \begin{verbatim}
 [ game,
