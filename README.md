@@ -47,7 +47,7 @@ src/astgen/tests folder of the distribution.
 
 The execution trace for two of them are given below: 
 ```prolog
-:~/src/astgen$ python3 astgen.py tests/arith_expr/lexicon tests/arith_expr/grammar tests/arith_expr/input
+:~/src/astgen$ python astgen.py tests/arith_expr/lexicon tests/arith_expr/grammar tests/arith_expr/input
 ['add', ('num', '1'), ['mult', ('num', '2'), ('num', '3')]]
 ```
 ```prolog
