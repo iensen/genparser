@@ -4,7 +4,7 @@ https://github.com/iensen/genparser/archive/master.zip
 
 CONTENTS
 ================
-- docs/main/ -- specification
+- docs/main/ -- documentation
 
 - src/astgen/ -- implementation consisting of several python modules
 
