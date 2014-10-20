@@ -126,7 +126,7 @@ A grammar file is an ASCII file that contains a specification of non-terminals o
 Non-terminals are specified  by  statements of the form 
 
 \begin{equation}\label{nontd}
-nt(\beta_1~\ldots~\beta_m) = \alpha_1(\tau_1)~\ldots~\alpha_n(\tau_n) 
+nt(\beta_1~\ldots~\beta_m) ::= \alpha_1(\tau_1)~\ldots~\alpha_n(\tau_n) 
 \end{equation}
 where 
 \begin{enumerate}
@@ -134,8 +134,8 @@ where
 \item $n\ge 1$;
 \item each $\alpha_i$  is an identifier;
 \item each $\tau_i$ is an identifier;
-\item $\beta_1~\ldots~\beta_m$ ($m \ge 1$) is a sequence of distinct identifiers, 
-such that each  $\beta_i$ except possibly $\beta_1$   
+\item $\beta_1~\ldots~\beta_m$ ($m \ge 1$) is a sequence  where
+ each  $\beta_1$  is an identifier and each $\beta_i$ for $i>1$ 
 is in one of the following forms:
 \begin{enumerate}
 \item an identifier that is an element of the sequence   $\tau_1\ldots \tau_n$;
@@ -155,9 +155,9 @@ The non-terminal symbol occurring on the left hand side of the first statement o
 Finally, the labels occurring in the statements of a grammar are referred to as the \textit{labels of the grammar}.
 
 Let $G$ be a grammar.
-We define a leveling function $||$ of $G$ that maps non-terminals of $G$ onto a set of non-negative integers in the range [0..n].
+We define a leveling function $|\ |$ of $G$ that maps non-terminals of $G$ onto a set of non-negative integers in the range [0..n].
 A leveling function is called reasonable if for each statement of the form 
-$$nt(\beta_1~\ldots~\beta_m) = \alpha_1(\tau_1)$$
+$$nt(\beta_1~\ldots~\beta_m) ::= \alpha_1(\tau_1)$$
 such that  $\alpha_1$ is a non-terminal, $|nt|> |\alpha_1|$.
 $G$ is called \textit{stratified}, if there exists a reasonable leveling of $G$.
   
@@ -181,13 +181,13 @@ right_paren = \)
 \subsubsubsection{Grammar File}\label{agram}
 
 \begin{verbatim}
-expr(T1) = T1
-T1(T2) = T2
-T1(add M1 M2) = T2(M1) add_op T1(M2)
-T2(mult Op1 Op2) = T3(Op1) mult_op T2(Op2)
-T2(T3) = T3
-T3(expr) = left_paren expr right_paren
-T3(num) = num   
+expr(T1) ::= T1
+T1(T2) ::= T2
+T1(add M1 M2) ::= T2(M1) add_op T1(M2)
+T2(mult Op1 Op2) ::= T3(Op1) mult_op T2(Op2)
+T2(T3) ::= T3
+T3(expr) ::= left_paren expr right_paren
+T3(num) ::= num   
 \end{verbatim}
  
 \subsubsubsection{Source File}\label{asf}
@@ -216,24 +216,27 @@ end = 1-0|1/2-1/2|0-1
 \end{verbatim}
 \subsubsubsection{Grammar file}\label{cgram}
 \begin{verbatim}
-game(game move_d) = move_d 
-game(game move_d cut_root(G)) = move_d   game(G)
-move_d(move move_id M1 M2) = move_id  move(M1) move(M2)
-move_d(game_over  move_id move) = move_id move end
-move(pawn_move cell) = cell
-move(move figure_spec cell) = figure_spec cell
-move(capture figure_spec cell) = figure_spec capture_char cell
-move(pawn_capture file cell) = file capture_char cell
-move(pawn_special_capture) = file capture_char cell en_passant
-move(promotion cell figure) = cell figure
-move(castling long_castling) = long_castling
-move(castling short_castling) = short_castling
-check(check move) = move plus
-checkmate(checkmate move) = move pound_sign
-figure_spec(fig figure) = figure
-figure_spec(fig figure file) = figure file
-figure_spec(fig figure rank) = figure rank
-figure_spec(fig figure cell) = figure cell
+game(game move_d) ::= move_d 
+game(game move_d cut_root(G)) ::= move_d   game(G)
+move_d(move move_id M1 M2) ::= move_id  move(M1) move(M2)
+move_d(game_over  move_id move) ::= move_id move end
+move_d(game_over  move_id checkmate) ::= move_id checkmate 
+move(pawn_move cell) ::= cell
+move(move figure_spec cell) ::= figure_spec cell
+move(capture figure_spec cell) ::= figure_spec capture_char cell
+move(pawn_capture file cell) ::= file capture_char cell
+move(pawn_special_capture) ::= file capture_char cell en_passant
+move(promotion cell figure) ::= cell figure
+move(castling long_castling) ::= long_castling
+move(castling short_castling) ::= short_castling
+move(checkmate c) ::= checkmate(c)
+move(check c) ::= check(c)
+check(check move) ::= move plus
+checkmate(checkmate move) ::= move pound_sign
+figure_spec(fig figure) ::= figure
+figure_spec(fig figure file) ::= figure file
+figure_spec(fig figure rank) ::= figure rank
+figure_spec(fig figure cell) ::= figure cell
 \end{verbatim}
 
 \subsubsubsection{Source File}\label{csf}
