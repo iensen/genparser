@@ -280,12 +280,12 @@ class GrammarRule:
         # store the line representing the rule
         self.raw_string = line.strip()
 
-        # check if there is an equality symbol in the line
-        if line.find('=') == -1:
+        # check if there is an ::= symbol in the line
+        if line.find('::=') == -1:
             raise InvalidGrammarRule(line)
 
         # parse lhs
-        lhs = line[0:line.index('=')].strip()
+        lhs = line[0:line.index('::=')].strip()
 
         if lhs.find('(') == -1 or lhs[-1] != ')':
             raise InvalidGrammarRule(line)
@@ -294,7 +294,7 @@ class GrammarRule:
         self.beta_list = lhs[lhs.find('(')+1:-1].split()
 
         # parse rhs
-        rhs_list = line[line.index('=') + 1:].split()
+        rhs_list = line[line.index('::=') + 3:].split()
 
         if not self.beta_list or not rhs_list:
             raise InvalidGrammarRule(line)
