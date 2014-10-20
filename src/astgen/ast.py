@@ -27,6 +27,7 @@ of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 """
 
+
 class AST:
     """The class is used to represent a non-empty abstract syntax trees
     as defined in section 3.5 of the document
@@ -38,7 +39,6 @@ class AST:
         """
         self.root_label = root_label
         self.children = children
-
 
     def repr(self):
         """Get the representation of the tree as defined in section 3.5
@@ -64,8 +64,6 @@ class AST:
             return []
         else:
             return self.children
-
-
 
     def __repr__(self):
         return str(self.repr())

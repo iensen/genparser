@@ -48,8 +48,6 @@ def parse_arguments():
     return parser.parse_args()
 
 
-
-import os
 def main():
     """
     Main entry point into the program.  Parse the command line arguments of the
@@ -75,9 +73,7 @@ def main():
 
     # obtain abstract syntax tree from the lexing sequence
 
-    print(parser_instance.get_AST(lexing_sequence, options.ignore_spaces))
-
-
+    print(parser_instance.get_ast(lexing_sequence, options.ignore_spaces))
 
 
 if __name__ == '__main__':

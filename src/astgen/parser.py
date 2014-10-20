@@ -49,7 +49,6 @@ class Parser:
         in grammar file contains an undefined non-terminal
         """
 
-
         self.terminals = allowed_terminals
 
         with open(grammar_file) as gf:
@@ -76,17 +75,20 @@ class Parser:
             try:
                 rule = GrammarRule(line)
             except InvalidGrammarRule as invalid_rule:
-                invalid_rule.set_line(line_number+1)
+                invalid_rule.set_line(line_number + 1)
                 raise invalid_rule
 
             self.grammar_rules.append(rule)
-            self.rule_lines.append(line_number+1)
+            self.rule_lines.append(line_number + 1)
+
+        # obtain list of non-terminals of the grammar
+        self.non_terminals = [rule.non_term for rule in self.grammar_rules]
 
         # check grammar rules for satisfying the conditions specified
         # in the documentation
         self.__check_rules()
 
-    def get_AST(self, lexing_sequence, ignore_spaces):
+    def get_ast(self, lexing_sequence, ignore_spaces):
         """ get abstract syntax tree from the lexing sequence
         If ignore_spaces = True, drop all lexemes annotated by spaces type
         """
@@ -94,16 +96,15 @@ class Parser:
         if ignore_spaces:
             lexing_sequence = [l for l in lexing_sequence if l[0] != 'spaces']
 
-
         # The result of the parsing is defined to be the abstract
         # syntax tree matching the lexing sequence l_1 , . . . , l_n
         # on the starting symbol of G.
 
-        starting_symbol =self.grammar_rules[0].non_term
+        starting_symbol = self.grammar_rules[0].non_term
         # Call the R function defined in the document.
-        return self.__r(starting_symbol, 0, len(lexing_sequence)-1,lexing_sequence)
+        return self.__r(starting_symbol, 0, len(lexing_sequence) - 1, lexing_sequence)
 
-    def __r(self,symbol, b, e, lexing_sequence):
+    def __r(self, symbol, b, e, lexing_sequence):
         """The function returns an abstract syntax tree R(S,b,e) as specified
         in section 3.4 of the document or None if the tree does not exist
         """
@@ -130,7 +131,7 @@ class Parser:
                         # check if b_1 is a member of tau_1
                         # and, if so, return the corresponding tree
                         beta_0 = rule.beta_list[0]
-                        if  beta_0 in rule.tau_list:
+                        if beta_0 in rule.tau_list:
                             return ast_list[rule.tau_list.index(beta_0)]
 
                         # else we construct a tree with a root b_0
@@ -147,18 +148,16 @@ class Parser:
                             else:
                                 # beta is of the form operation(tau)
                                 operation = beta[:beta.find('(')]
-                                tau = beta[beta.find('(')+1:-1]
+                                tau = beta[beta.find('(') + 1:-1]
                                 tree_idx = rule.tau_list.index(tau)
 
-                                children += {'cut_root': \
-                                         ast_list[tree_idx].children_list()
-                                         }[operation]
-                        return AST(root,children)
+                                children += {
+                                    'cut_root':
+                                    ast_list[tree_idx].children_list()
+                                }[operation]
+                        return AST(root, children)
 
-
-
-
-    def __r_aux(self,b, e, lexing_sequence, rule, rhs_i):
+    def __r_aux(self, b, e, lexing_sequence, rule, rhs_i):
         """Let the rule be S(b_1 ... b_m ) = a_0 (t_0) ... a_(n-1) (t_(n-1))
         and the lexing sequence be l_0,...,l_(k-1).
         The function returns a list of abstract trees t_0,...,t_(n-rhs_i)
@@ -172,7 +171,7 @@ class Parser:
         # if rhs_i = n-1, we are at the last symbol of the rhs of the rule
         # in this case we need to match alpha_(n-1)
         # with the entire sequence left
-        if rhs_i == n-1:
+        if rhs_i == n - 1:
             tree = self.__r(rule.alpha_list[rhs_i], b, e, lexing_sequence)
             return [tree] if tree is not None else None
 
@@ -182,24 +181,17 @@ class Parser:
         # for each of the remaining alpha_(k_index+1)...alpha_n
         for cur_k_size in range(1, e - b - n + rhs_i + 3):
             # try to build t_0
-            t_head = self.__r(rule.alpha_list[rhs_i], b, \
-                           b+cur_k_size-1, lexing_sequence)
+            t_head = self.__r(rule.alpha_list[rhs_i], b,
+                              b + cur_k_size - 1, lexing_sequence)
             if t_head is not None:
                 # try to build t_1,...,t_(n-k_index)
-                t_tail = self.__r_aux(b+cur_k_size, e,\
-                                      lexing_sequence, rule, rhs_i+1)
+                t_tail = self.__r_aux(b + cur_k_size, e,
+                                      lexing_sequence, rule, rhs_i + 1)
                 if t_tail is not None:
                     return [t_head] + t_tail
 
-
-
-
-
     def __check_rules(self):
         """ # check rules for conditions specified in the documentation"""
-
-        # obtain list of non-terminals of the grammar
-        self.non_terminals = [rule.non_term for rule in self.grammar_rules]
 
         for rule_idx in range(len(self.grammar_rules)):
             rule = self.grammar_rules[rule_idx]
@@ -207,11 +199,9 @@ class Parser:
             # rule_ok = True iff the rule satisfies all the conditions
             rule_ok = True
 
-
             #1. A non-terminal name is not the same as any terminal name
             if rule.non_term in self.terminals:
                 rule_ok = False
-
 
             # 2. Each beta_i for i>=1 is of one of the forms c or f(c),
             # where c is an element of the sequence tau_1 ... tau_n; and
@@ -225,42 +215,39 @@ class Parser:
             #    - m must be equal to 1,
             # otherwise beta_1 is an identifier
 
-            for b_idx in range(0,len(rule.beta_list)):
+            for b_idx in range(0, len(rule.beta_list)):
                 beta = rule.beta_list[b_idx]
-                if beta.find('(')!= -1:
+                if beta.find('(') != -1:
                     rule_ok = rule_ok and beta[-1] == ')'
-                    argument = beta[beta.find('(')+1:-1]
+                    argument = beta[beta.find('(') + 1:-1]
                     if argument not in rule.tau_list or \
-                            rule.tau_list.count(argument)>1:
+                       rule.tau_list.count(argument) > 1:
                         rule_ok = False
                 else:
                     beta_in_tau = beta in rule.tau_list
-                    if not beta_in_tau and b_idx>0:
+                    if not beta_in_tau and b_idx > 0:
                         rule_ok = False
 
-                    if beta_in_tau and b_idx ==0 and len(rule.beta_list) > 1:
-                       rule_ok = False
+                    if beta_in_tau and b_idx == 0 and len(rule.beta_list) > 1:
+                        rule_ok = False
 
-                    if beta_in_tau and   rule.tau_list.count(beta) > 1:
-                       rule_ok = False
-
-
+                    if beta_in_tau and rule.tau_list.count(beta) > 1:
+                        rule_ok = False
 
             # 3. each alpha_i is either a non-terminal or terminal
             # of the grammar
 
             for alpha in rule.alpha_list:
-               if alpha not in self.non_terminals \
-                       and alpha not in self.terminals:
-                         rule_ok = False
-
+                if alpha not in self.non_terminals \
+                        and alpha not in self.terminals:
+                    rule_ok = False
 
             # raise an exception if the rule does not satisfy one
             # of the conditions
             if not rule_ok:
                 invalid_rule_ex = InvalidGrammarRule(rule)
                 invalid_rule_ex.set_line(self.rule_lines[rule_idx])
-                raise  invalid_rule_ex
+                raise invalid_rule_ex
 
     @staticmethod
     def __is_empty_line(line):
@@ -291,7 +278,7 @@ class GrammarRule:
             raise InvalidGrammarRule(line)
 
         self.non_term = lhs[:lhs.find('(')]
-        self.beta_list = lhs[lhs.find('(')+1:-1].split()
+        self.beta_list = lhs[lhs.find('(') + 1:-1].split()
 
         # parse rhs
         rhs_list = line[line.index('::=') + 3:].split()
@@ -309,13 +296,13 @@ class GrammarRule:
                 self.tau_list.append(rhs_term)
             else:
                 self.alpha_list.append(rhs_term[:rhs_term.find('(')])
-                self.tau_list.append(rhs_term[rhs_term.find('(')+1:-1])
+                self.tau_list.append(rhs_term[rhs_term.find('(') + 1:-1])
 
         # check that all members of alpha and tau lists are identifiers:
         all_ok = True
 
-        for id in self.tau_list+self.alpha_list:
-            all_ok  = all_ok and GrammarRule.__is_identifier(id)
+        for rhs_id in self.tau_list + self.alpha_list:
+            all_ok = all_ok and GrammarRule.__is_identifier(rhs_id)
 
         if not all_ok:
             raise InvalidGrammarRule(line)
@@ -336,9 +323,8 @@ class GrammarRule:
                 operation = beta[:beta.find('(')]
                 beta_ok = beta_ok and beta[-1] == ')'
 
-                argument = beta[beta.find('(')+1:-1]
-                beta_ok = beta_ok and \
-                          GrammarRule.__is_identifier(argument)
+                argument = beta[beta.find('(') + 1:-1]
+                beta_ok = beta_ok and GrammarRule.__is_identifier(argument)
                 beta_ok = beta_ok and operation in ALLOWED_OPERATIONS
 
             if not beta_ok:
@@ -350,12 +336,11 @@ class GrammarRule:
     def __str__(self):
         return self.__repr__()
 
-
     @staticmethod
-    def __is_identifier(id):
+    def __is_identifier(id_str):
         """ Return true if  id is an identifier and False otherwise """
         regex = re.compile(r"^[a-zA-Z]\w*\Z")
-        return regex.match(id) is not None
+        return regex.match(id_str) is not None
 
 
 class InvalidGrammarRule(Exception):
@@ -372,11 +357,10 @@ class InvalidGrammarRule(Exception):
     def __repr__(self):
         return "The grammar file contains an invalid " \
                "grammar rule: " + str(self.rule) + " at line" \
-               " number " + str(self.line_number) + "."
+                                                   " number " + str(self.line_number) + "."
 
     def __str__(self):
         return self.__repr__()
 
     def set_line(self, line_number):
         self.line_number = line_number
-

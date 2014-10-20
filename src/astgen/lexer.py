@@ -61,20 +61,20 @@ class Lexer:
             (identifier, regular_expression) = Lexer.__parse_declaration(line)
 
             if identifier is None and regular_expression is None:
-                raise InvalidLexemeDeclaration(line, line_number+1)
+                raise InvalidLexemeDeclaration(line, line_number + 1)
 
             if identifier is None:
-                raise InvalidIdentifier(line,line_number+1)
+                raise InvalidIdentifier(line, line_number + 1)
 
             if regular_expression is None:
-                raise InvalidRegularExpression(line, line_number+1)
+                raise InvalidRegularExpression(line, line_number + 1)
 
             if identifier in self.lexicon_dict:
-                raise RepeatedDeclaration(identifier, line_number+1)
+                raise RepeatedDeclaration(identifier, line_number + 1)
 
             self.lexicon_dict[identifier] = regular_expression
 
-    def get_lexing_sequence(self,input_file):
+    def get_lexing_sequence(self, input_file):
         """The method returns a lexing sequence of the form
         [(l_0,s_0),...,(l_n,s_n)], where s1+...+sn is the file content
         and l_0,...,l_n are lexeme types as defined in the specification
@@ -93,7 +93,7 @@ class Lexer:
         while content:
             prefix_found = False
             for last_pref_index in range(len(content), -1, -1):
-                prefix = content[0:last_pref_index+1]
+                prefix = content[0:last_pref_index + 1]
                 regex_found = False
                 for l_type in self.lexicon_dict:
                     if self.lexicon_dict[l_type].match(prefix) is not None:
@@ -107,13 +107,7 @@ class Lexer:
             if not prefix_found:
                 raise LexingStuckError(lexing_sequence, content)
 
-
         return lexing_sequence
-
-
-
-
-        return None
 
     def __add_builtin_lexemes(self):
         """The method extends the lexicon dictionary by adding built in lexemes
@@ -126,8 +120,6 @@ class Lexer:
 
         self.lexicon_dict["spaces"] = re.compile(r"^\s+\Z")
         self.lexicon_dict["id"] = re.compile(r"^[a-zA-Z]\w*\Z")
-
-
 
     @staticmethod
     def __is_empty_line(line):
@@ -152,32 +144,28 @@ class Lexer:
         lhs = line[0:line.index("=")].strip()
         identifier = Lexer.__parse_identifier(lhs)
 
-        rhs = line[line.index("=")+1:].strip()
+        rhs = line[line.index("=") + 1:].strip()
         regular_expression = Lexer.__parse_regular_expression(rhs)
 
         return identifier, regular_expression
 
-
-
-
     @staticmethod
-    def __parse_identifier(id):
-        """ Return id if  id is an identifier and None otherwise """
+    def __parse_identifier(id_str):
+        """ Return id_str if  id_str is an identifier and None otherwise """
         regex = re.compile(r"^[a-zA-Z]\w*\Z")
-        if regex.match(id) is not None:
-            return id
+        if regex.match(id_str) is not None:
+            return id_str
         else:
             return None
 
     @staticmethod
     def __parse_regular_expression(string):
         try:
-            regular_expression = re.compile("^("+string+r")\Z")
+            regular_expression = re.compile("^(" + string + r")\Z")
         except re.error:
             regular_expression = None
 
         return regular_expression
-
 
 
 class InvalidLexemeDeclaration(Exception):
@@ -185,6 +173,7 @@ class InvalidLexemeDeclaration(Exception):
     Defines a class for representing exceptions which are thrown in the event of
     an invalid lexeme declaration in the lexicon file
     """
+
     def __init__(self, declaration, line_number):
         super(InvalidLexemeDeclaration, self).__init__()
         self.declaration = declaration
@@ -192,8 +181,8 @@ class InvalidLexemeDeclaration(Exception):
 
     def __repr__(self):
         return "The lexicon file contains an invalid " \
-               "lexeme declaration: "+str(self.declaration) + " at line" \
-               "number " + str(self.line_number)+"."
+               "lexeme declaration: " + str(self.declaration) + " at line" \
+                                                                "number " + str(self.line_number) + "."
 
     def __str__(self):
         return self.__repr__()
@@ -204,6 +193,7 @@ class InvalidRegularExpression(Exception):
     Defines a class for representing exceptions which are thrown in the event of
     an invalid regular expression in the lexicon file
     """
+
     def __init__(self, declaration, line_number):
         super(InvalidRegularExpression, self).__init__()
         self.declaration = declaration
@@ -211,13 +201,12 @@ class InvalidRegularExpression(Exception):
 
     def __repr__(self):
         return "The lexicon file contains an invalid " \
-            "regular expression on the right hand side of the declaration: "\
-              + str(self.declaration) + " at line" \
-            " number " + str(self.line_number)+"."
+               "regular expression on the right hand side of the declaration: " \
+               + str(self.declaration) + " at line" \
+                                         " number " + str(self.line_number) + "."
 
     def __str__(self):
         return self.__repr__()
-
 
 
 class RepeatedDeclaration(Exception):
@@ -225,14 +214,15 @@ class RepeatedDeclaration(Exception):
     Defines a class for representing exceptions which are thrown in the event of
     an invalid lexeme declaration given in the lexicon file
     """
+
     def __init__(self, lexeme_type, line_number):
         super(RepeatedDeclaration, self).__init__()
         self.lexeme_type = lexeme_type
         self.line_number = line_number
 
     def __repr__(self):
-        return "The lexeme type " + self.lexeme_type + " is declared for"\
-        " the second time at line " + str(self.line_number) + "."
+        return "The lexeme type " + self.lexeme_type + " is declared for" \
+                                                       " the second time at line " + str(self.line_number) + "."
 
     def __str__(self):
         return self.__repr__()
@@ -243,16 +233,17 @@ class InvalidIdentifier(Exception):
     Defines a class for representing exceptions which are thrown in the event of
     an invalid regular expression in the lexicon file
     """
-    def __init__(self, declaration, line_number, file):
-        super(InvalidRegularExpression, self).__init__()
+
+    def __init__(self, declaration, line_number):
+        super(InvalidIdentifier, self).__init__()
         self.declaration = declaration
         self.line_number = line_number
 
     def __repr__(self):
         return "The lexicon file contains an invalid " \
-            "identifier on the left hand side of the a declaration: "\
-              + str(self.declration) + " at line" \
-            " number " + str(self.line_number)+"."
+               "identifier on the left hand side of the a declaration: " \
+               + str(self.declaration) + " at line" \
+               " number " + str(self.line_number) + "."
 
     def __str__(self):
         return self.__repr__()
@@ -263,17 +254,17 @@ class LexingStuckError(Exception):
     Defines a class for representing exceptions which are thrown in the event when
     lexing cannot proceed starting from some position in the file
     """
+
     def __init__(self, lexing_sequence, suffix):
         super(LexingStuckError, self).__init__()
         self.lexing_sequence = lexing_sequence
         self.suffix = suffix
 
+    @property
     def __repr__(self):
         return "The lexing cannot proceed starting from  " \
-            + self.suffix + ". The lexing sequence obtained so far is: " \
-            + str(self.lexing_sequence) + "."
+               + self.suffix + ". The lexing sequence obtained so far is: " \
+               + str(self.lexing_sequence) + "."
 
     def __str__(self):
-        return self.__repr__()
-
-
+        return self.__repr__
