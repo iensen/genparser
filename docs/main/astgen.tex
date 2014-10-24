@@ -146,6 +146,39 @@ If $f = cut\_root$, $c$ must not be a lexeme type name;
 \item if $\beta_1$ is of one of the forms $\tau_j$ or $f(\tau_j)$, then $m$ must be equal to $1$, otherwise $\beta_1$ is an identifier also referred to as \textit{a label}.
 \end{enumerate}
 
+An informal reading of the rule \ref{nontd} is given below.
+\begin{enumerate}
+
+\item  Suppose $\beta_1 \in \{\tau_1,...,\tau_m\}$ .
+In this case $n = 1$, and the rule is of the form:
+
+$$nt (\tau_i) ::= \alpha_1(\tau_1) ... \alpha_m(\tau_m)$$.
+
+where $\tau_i \in \{\tau_1,\ldots,\tau_m\}$
+
+The reading of the rule is:
+
+An expression of type $nt$ with tree $\tau_i$ can be written by writing an expression of type $\alpha_1$ with tree $\tau_1$, followed by an expression of type $\alpha_2$ with tree $\tau_2$, \ldots, followed by an expression of type $\alpha_n$ with tree $\tau_n$.
+
+For a terminal symbol $t$ the phrase \textit{expression of type $t$} should be understood as $t$ itself.
+
+For example, the reading of the rule
+$$T2(M) = T3(M)$$
+is \textit{an expression of type $T2$ with tree $M$ can be written by writing an expression of type $T3$ with tree $M$.} 
+
+
+\item  Suppose  $\beta_1 \not\in \{\tau_1,...,\tau_m\}$ .
+
+In this case the reading is:
+
+An expression of type $nt$ with the tree corresponding to the list $(\beta_1,...,\beta_n)$ (see section \ref{treesec}) can be written by writing an expression of type $\alpha_1$ with tree $\tau_1$, followed by an expression of type $\alpha_2$ with tree $\tau_2$, \ldots, followed by an expression of type $\alpha_n$ with tree $\tau_n$.
+
+For example, the reading of the rule
+$$T1(add~M1~M2)~::=~T2(M1)~add\_op(A)~T1(M2)$$
+is \textit{an expression of type $T1$ with tree~$(add~M1~M2)$ can be written by writing an expression of type $T2$ with tree $M1$, followed by an expression of type $add\_op$ with tree $A$, followed by an expression of type $T1$ with tree $M2$.} 
+
+\end{enumerate}
+
 
 We allow a shorthand $\alpha$ that stands for $\alpha(\alpha)$ to be an element of the sequence on the right hand side of the statement (\ref{nontd}). 
 
@@ -406,7 +439,7 @@ We will refer  $R_{G,L}(S,b,e)$ as  an abstract syntax tree of $G$ \textit{match
 The result of the parsing is defined to be the abstract syntax tree matching the lexing sequence $l_1, \ldots, l_n$ on the starting symbol of $G$.  
 
 
-\subsection{Trees Representation}
+\subsection{Trees Representation}\label{treesec}
 Let $T$ be an abstract syntax tree .
 In the implementation, $T$ is  represented as follows:
 \begin{enumerate}
