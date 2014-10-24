@@ -88,6 +88,7 @@ class Parser:
         # in the documentation
         self.__check_rules()
 
+
     def get_ast(self, lexing_sequence, ignore_spaces):
         """ get abstract syntax tree from the lexing sequence
         If ignore_spaces = True, drop all lexemes annotated by spaces type
@@ -101,13 +102,22 @@ class Parser:
         # on the starting symbol of G.
 
         starting_symbol = self.grammar_rules[0].non_term
-        # Call the R function defined in the document.
-        return self.__r(starting_symbol, 0, len(lexing_sequence) - 1, lexing_sequence)
 
-    def __r(self, symbol, b, e, lexing_sequence):
+        # create dictionaries for memoisation of functions __r and __r_aux
+        dict_r = {}
+        dict_r_aux = {}
+
+        # Call the R function defined in the document.
+        return self.__r(starting_symbol, 0, len(lexing_sequence) - 1, lexing_sequence, dict_r, dict_r_aux)
+
+    def __r(self, symbol, b, e, lexing_sequence, dict_r, dict_r_aux):
         """The function returns an abstract syntax tree R(S,b,e) as specified
         in section 3.4 of the document or None if the tree does not exist
         """
+        # check if the value was previously computed
+        # and return the computed value if this is the case
+        if (symbol, b, e) in dict_r:
+            return dict_r[(symbol, b, e)]
 
         # if b = e and S is lb , RG,L (S, b, e) contains only one node
         # labeled by (lb , sb )
@@ -125,13 +135,15 @@ class Parser:
                     # to find a suitable combination (page 7 of the doc)
                     # we will start from searching for the value of k1
                     # corresponding to rhs_i = 0 in __r_aux call
-                    ast_list = self.__r_aux(b, e, lexing_sequence, rule, 0)
+                    ast_list = self.__r_aux(b, e, lexing_sequence, rule, 0, dict_r, dict_r_aux)
                     if ast_list is not None:
                         # build the tree !
                         # check if b_1 is a member of tau_1
                         # and, if so, return the corresponding tree
                         beta_0 = rule.beta_list[0]
                         if beta_0 in rule.tau_list:
+                            dict_r[(symbol, b, e)] = ast_list\
+                                             [rule.tau_list.index(beta_0)]
                             return ast_list[rule.tau_list.index(beta_0)]
 
                         # else we construct a tree with a root b_0
@@ -155,9 +167,10 @@ class Parser:
                                     'cut_root':
                                     ast_list[tree_idx].children_list()
                                 }[operation]
-                        return AST(root, children)
+                        dict_r[(symbol, b, e)] = AST(root, children)
+                        return  AST(root, children)
 
-    def __r_aux(self, b, e, lexing_sequence, rule, rhs_i):
+    def __r_aux(self, b, e, lexing_sequence, rule, rhs_i, dict_r, dict_r_aux):
         """Let the rule be S(b_1 ... b_m ) = a_0 (t_0) ... a_(n-1) (t_(n-1))
         and the lexing sequence be l_0,...,l_(k-1).
         The function returns a list of abstract trees t_0,...,t_(n-rhs_i)
@@ -166,14 +179,20 @@ class Parser:
         l_(b+k_(rhs_i)+...+k_(rhs_i+j-1))...l_(b+rhs_i+...+k_(rhs_i+j)-1)
         on the symbol alpha_(rhs_i)
         """
+
+        if (b, e, rule, rhs_i) in dict_r_aux:
+            return dict_r_aux[(b, e, rule, rhs_i)]
+
         n = len(rule.alpha_list)
 
         # if rhs_i = n-1, we are at the last symbol of the rhs of the rule
         # in this case we need to match alpha_(n-1)
         # with the entire sequence left
         if rhs_i == n - 1:
-            tree = self.__r(rule.alpha_list[rhs_i], b, e, lexing_sequence)
-            return [tree] if tree is not None else None
+            tree = self.__r(rule.alpha_list[rhs_i], b, e, lexing_sequence, dict_r, dict_r_aux)
+            result = [tree] if tree is not None else None
+            dict_r_aux[(b, e, rule, rhs_i)] = result
+            return result
 
         # searching for cur_k_size = k_(k_index) from 1 up to the maximum
         # number such that there is still at least one non-terminal in
@@ -182,12 +201,13 @@ class Parser:
         for cur_k_size in range(1, e - b - n + rhs_i + 3):
             # try to build t_0
             t_head = self.__r(rule.alpha_list[rhs_i], b,
-                              b + cur_k_size - 1, lexing_sequence)
+                              b + cur_k_size - 1, lexing_sequence, dict_r, dict_r_aux)
             if t_head is not None:
                 # try to build t_1,...,t_(n-k_index)
                 t_tail = self.__r_aux(b + cur_k_size, e,
-                                      lexing_sequence, rule, rhs_i + 1)
+                                      lexing_sequence, rule, rhs_i + 1, dict_r, dict_r_aux)
                 if t_tail is not None:
+                    dict_r_aux[(b, e, rule, rhs_i)] = [t_head] + t_tail
                     return [t_head] + t_tail
 
     def __check_rules(self):
