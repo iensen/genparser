@@ -209,6 +209,7 @@ class Parser:
                 if t_tail is not None:
                     dict_r_aux[(b, e, rule, rhs_i)] = [t_head] + t_tail
                     return [t_head] + t_tail
+        dict_r_aux[(b, e, rule, rhs_i)] = None
 
     def __check_rules(self):
         """ # check rules for conditions specified in the documentation"""
