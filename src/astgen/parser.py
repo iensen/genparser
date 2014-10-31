@@ -169,6 +169,8 @@ class Parser:
                                 }[operation]
                         dict_r[(symbol, b, e)] = AST(root, children)
                         return  AST(root, children)
+        dict_r[(symbol, b, e)] = None
+
 
     def __r_aux(self, b, e, lexing_sequence, rule, rhs_i, dict_r, dict_r_aux):
         """Let the rule be S(b_1 ... b_m ) = a_0 (t_0) ... a_(n-1) (t_(n-1))
