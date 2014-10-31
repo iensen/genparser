@@ -28,7 +28,7 @@ either expressed or implied, of the FreeBSD Project.
 """
 
 import re
-
+import collections
 
 class Lexer:
     """Defines  a class that can be used to obtain a
@@ -43,7 +43,7 @@ class Lexer:
             lines = lf.readlines()
 
         # create an instance of lexicon dictionary
-        self.lexicon_dict = {}
+        self.lexicon_dict = collections.OrderedDict()
 
         # add built-in lexemes to the dictionary:
         if use_builtins:
