@@ -42,8 +42,8 @@ def parse_arguments():
     parser.add_option("-s", action="store_false",
                       dest="ignore_spaces", default=True)
 
-    parser.add_option("-n", action="store_false",
-                      dest="use_builtin_lexemes", default=True)
+    parser.add_option("-b", action="store_true",
+                      dest="use_builtin_lexemes", default=False)
 
     return parser.parse_args()
 
