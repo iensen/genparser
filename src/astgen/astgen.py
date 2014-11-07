@@ -66,7 +66,7 @@ def main():
     lexer_instance = Lexer(lexicon_file, options.use_builtin_lexemes)
 
     # obtain lexing sequence from the input file
-    lexing_sequence = lexer_instance.get_lexing_sequence(input_file)
+    lexing_sequence = lexer_instance.get_lexing_sequence_from_file(input_file)
 
     # create parser instance
     parser_instance = Parser(grammar_file, lexer_instance.lexicon_dict.keys())

@@ -74,16 +74,20 @@ class Lexer:
 
             self.lexicon_dict[identifier] = regular_expression
 
-    def get_lexing_sequence(self, input_file):
+    def get_lexing_sequence_from_file(self, input_file):
+
+        with open(input_file, 'r') as inf:
+            content = inf.read()
+
+        return self.get_lexing_sequence(content)
+
+    def get_lexing_sequence(self, contents):
         """The method returns a lexing sequence of the form
         [(l_0,s_0),...,(l_n,s_n)], where s1+...+sn is the file content
         and l_0,...,l_n are lexeme types as defined in the specification
         """
 
         lexing_sequence = []
-
-        with open(input_file, 'r') as inf:
-            content = inf.read()
 
         # find the maximum prefix of the content such that it matches at least one
         # of the regular expressions in the file
