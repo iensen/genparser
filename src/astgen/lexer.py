@@ -81,7 +81,7 @@ class Lexer:
 
         return self.get_lexing_sequence(content)
 
-    def get_lexing_sequence(self, contents):
+    def get_lexing_sequence(self, content):
         """The method returns a lexing sequence of the form
         [(l_0,s_0),...,(l_n,s_n)], where s1+...+sn is the file content
         and l_0,...,l_n are lexeme types as defined in the specification
