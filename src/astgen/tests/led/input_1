@@ -56,11 +56,12 @@ xImage(c) :=
    A4 = ((500,475),(500,425)) &
    txt = ((450, 450), 15,restart)
 
- If gameOver then
+If gameOver then
  gameResultDisplay := 
-    {((100,450),15,xwon)} if threeInRow('x');
-    {((100,450),15,owon)} if threeInRow('o');
+    {((100,450),15,"x won")} if threeInRow('x');
+    {((100,450),15,"o won")} if threeInRow('o');
     {((100,450),15,catgotit)}  otherwise
+
  alwaysDisplay :=
    gridDisplay  U cellDisplays  U restartButton 
 
