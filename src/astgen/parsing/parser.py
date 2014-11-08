@@ -30,7 +30,7 @@ either expressed or implied, of the FreeBSD Project.
 # fix line numbers; add parsing function!
 
 import re
-from ast import AST
+from .ast import AST
 
 # constants:
 # list of operations allowed on trees

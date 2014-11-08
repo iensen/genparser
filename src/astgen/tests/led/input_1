@@ -2,7 +2,7 @@
  cells := {1..9}
  gameBoard := {1..9}
  occupies(p,c) iff (p,c) in Gamma
- occupied(c)   iff occupies(x,c) or occupies(o,c)
+ occupied(c)   iff occupies('x',c) or occupies('o',c)
 
  rows := hRows U vRows U diagonals
  where
@@ -15,11 +15,11 @@
  boardFull iff 
    all c in cells. occupied(c)
 gameOver iff
-    boardFull or threeInRow(x) or threeInRow(o)
+    boardFull or threeInRow('x') or threeInRow('o')
  If ~gameOver then
    currentPlayer:=
-     x if even(|Gamma|);
-     o otherwise
+     'x' if even(|Gamma|);
+     'o' otherwise
  
  even(n) iff n mod 2=0
  legalToMoveIn(c) iff  ~occupied(c) &  ~gameOver   
@@ -39,15 +39,15 @@ xImage(c) :=
   ((centerX(c), centerO(c)), fontSize,<111>)
 
  cellDisplay(c) :=
-    {xImage(c)} if (x,c) in Gamma;  
-    {oImage(c)} if (o,c) in Gamma; 
+    {xImage(c)} if ('x',c) in Gamma;  
+    {oImage(c)} if ('o',c) in Gamma; 
     {}          otherwise
  cellDisplays :=
     Union[c in gameBoard] cellDisplay(c)
 
  currentPlayerDisplay := 
-   {((100,450),15,xsTurn)} if currentPlayer=x;
-   {((100,450),15,osturn)} if currentPlayer=o
+   {((100,450),15,"x's Turn")} if currentPlayer='x';
+   {((100,450),15,"o's Turn")} if currentPlayer='o'
  restartButton := {A1,A2,A3,A4,txt}
  where
    A1 = ((400,475),(500,475)) &
@@ -58,8 +58,8 @@ xImage(c) :=
 
  If gameOver then
  gameResultDisplay := 
-    {((100,450),15,xwon)} if threeInRow(x);
-    {((100,450),15,owon)} if threeInRow(o);
+    {((100,450),15,xwon)} if threeInRow('x');
+    {((100,450),15,owon)} if threeInRow('o');
     {((100,450),15,catgotit)}  otherwise
  alwaysDisplay :=
    gridDisplay  U cellDisplays  U restartButton 

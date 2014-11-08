@@ -57,3 +57,5 @@ ceil = ceil
 identifier = [a-zA-Z][a-zA-Z0-9]*
 numeral = [0-9]+|[0-9]*\.[0-9]+|[0-9]*\.[0-9]*\([0-9]+\.\.\)
 spaces = \s+
+single_quoted_string = '([^']*)'
+double_quoted_string = \"([^\"]*)\"

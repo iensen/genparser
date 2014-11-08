@@ -29,8 +29,9 @@ either expressed or implied, of the FreeBSD Project.
 
 
 from optparse import OptionParser
-from lexer import *
-from parser import *
+from parsing.parser import Parser
+from parsing.lexer import *
+
 
 
 def parse_arguments():
