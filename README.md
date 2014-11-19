@@ -26,7 +26,7 @@ EXECUTE
 
 The command line syntax is:
 ```
-python astgen.py path_to_lexicon_file path_to_grammar_file path_to_input_file [-s] [-b]
+python main.py path_to_lexicon_file path_to_grammar_file path_to_input_file [-s] [-b]
 ```
 Lexicon file should contain declaration of lexem types, one per line, as defined in section 2.1 of https://github.com/iensen/genparser/blob/master/docs/main/astgen.pdf?raw=true
 
@@ -47,11 +47,11 @@ Examples can be found in  src/astgen/tests folder of the distribution.
 
 The execution trace for two of them are given below: 
 ```prolog
-:~/src/astgen$ python astgen.py tests/arith_expr/lexicon tests/arith_expr/grammar tests/arith_expr/input -b
+:~/src/astgen$ python main.py tests/arith_expr/lexicon tests/arith_expr/grammar tests/arith_expr/input -b
 ['add', ('num', '1'), ['mult', ('num', '2'), ('num', '3')]]
 ```
 ```prolog
-:~/src/astgen$ python astgen.py tests/chess/lexicon tests/chess/grammar tests/chess/input 
+:~/src/astgen$ python main.py tests/chess/lexicon tests/chess/grammar tests/chess/input 
 ['game', ['move', ('move_id', '1.'), ['pawn_move', ('cell', 'e4')], ['pawn_move', ('cell', 'e5')]], ['move', ('move_id', '2.'), ['move', ['fig', ('figure', 'Q')], ('cell', 'h5')], ['move', ['fig', ('figure', 'N')], ('cell', 'c6')]], ['move', ('move_id', '3.'), ['move', ['fig', ('figure', 'B')], ('cell', 'c4')], ['move', ['fig', ('figure', 'N')], ('cell', 'f6')]]]
 ```
 
