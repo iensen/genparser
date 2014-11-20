@@ -30,12 +30,13 @@ either expressed or implied, of the FreeBSD Project.
 import re
 import collections
 
+
 class Lexer:
     """Defines  a class that can be used to obtain a
     lexing sequence given an input file and a lexicon file
     """
 
-    def __init__(self, lexicon_file, use_builtins):
+    def __init__(self, lexicon_file, use_builtins=False):
         """Read the lexicon file and store a dictionary
         mapping lexeme names into corresponding regular expressions
         """
