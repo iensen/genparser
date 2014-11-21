@@ -89,7 +89,7 @@ class Parser:
         self.__check_rules()
 
 
-    def get_ast(self, lexing_sequence, ignore_spaces):
+    def get_ast(self, lexing_sequence, ignore_spaces = True):
         """ get abstract syntax tree from the lexing sequence
         If ignore_spaces = True, drop all lexemes annotated by spaces type
         """
