@@ -124,5 +124,5 @@ T0(emptySet) ::= lcurparen rcurparen
 T0(terms Ts) ::= lcurparen terms(Ts) rcurparen
 T0(suchthat T S) ::= lcurparen term(T) pipe Stmt(S) rcurparen
 T0(single_quoted_string S) ::= single_quoted_string(S)
-T0(double_quoted_string S) ::= double_quoted_string(S)
+
 
