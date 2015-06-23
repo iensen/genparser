@@ -89,9 +89,15 @@ class Parser:
         self.__check_rules()
 
 
-    def get_ast(self, lexing_sequence, ignore_spaces = True):
+
+
+
+    def get_ast(self, lexing_sequence, ignore_spaces=True, starting_symbol=None):
         """ get abstract syntax tree from the lexing sequence
         If ignore_spaces = True, drop all lexemes annotated by spaces type
+        If starting symbol is provided, generate a tree from a production with the symbol
+        on the left hand side; otherwise generate a tree where
+        the starting non-terminal occurs in the LHS of the first rule of the grammar
         """
         # remove all spaces if needed
         if ignore_spaces:
@@ -101,7 +107,8 @@ class Parser:
         # syntax tree matching the lexing sequence l_1 , . . . , l_n
         # on the starting symbol of G.
 
-        starting_symbol = self.grammar_rules[0].non_term
+        if starting_symbol is None:
+               starting_symbol = self.grammar_rules[0].non_term
 
         # create dictionaries for memoisation of functions __r and __r_aux
         dict_r = {}
