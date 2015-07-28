@@ -70,3 +70,9 @@ class AST:
 
     def __str__(self):
         return self.__repr__()
+
+    def __getitem__(self,index):
+         return ([self.root_label] + self.children)[index]
+
+    def __len__(self):
+        return 1 + len(self.children)
