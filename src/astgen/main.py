@@ -33,7 +33,6 @@ from parsing.parser import Parser
 from parsing.lexer import *
 
 
-
 def parse_arguments():
     """
     Returns the arguments passed to the program. The arguments are parsed from sys.argv.
