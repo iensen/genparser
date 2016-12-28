@@ -76,3 +76,26 @@ class AST:
 
     def __len__(self):
         return 1 + len(self.children)
+
+    def get_pretty_str(self) -> str:
+        st = self.get_pretty_AST_str(self.repr())
+        return st
+
+    @staticmethod
+    def get_pretty_AST_str(T: list, tab_count=1) -> str:
+        """Acceptable: isinstance(T, AST)."""
+        PRETTY_AST_TAB = ' ' * 2
+        tabs = PRETTY_AST_TAB * tab_count
+        st = tabs # building pretty string
+        if isinstance(T, tuple): # leaf-node
+            st += str(T)
+        else:
+            st += "['" + T[0] + "'"
+            for t in T[1:]: # subtree
+                st2 = ',\n'
+                st2 += get_pretty_AST_str(
+                        t, tab_count=tab_count+1
+                    )
+                st += st2
+            st += '\n' + tabs + ']'
+        return st
