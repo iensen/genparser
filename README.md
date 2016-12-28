@@ -45,7 +45,7 @@ EXAMPLES
 
 Examples can be found in  src/astgen/tests folder of the distribution.
 
-The execution trace for two of them are given below: 
+The execution traces for two of them are given below: 
 ```prolog
 :~/src/astgen$ python main.py tests/arith_expr/lexicon tests/arith_expr/grammar tests/arith_expr/input -b
 ['add', ('num', '1'), ['mult', ('num', '2'), ('num', '3')]]
