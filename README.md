@@ -43,11 +43,51 @@ EXAMPLES
 Examples can be found in src/astgen/tests folder of the distribution.
 
 The execution traces for two of them are given below:
-```prolog
+```
 :~/src/astgen$ python3 main.py tests/arith_expr/lexicon tests/arith_expr/grammar tests/arith_expr/input -b
 ['add', ('num', '1'), ['mult', ('num', '2'), ('num', '3')]]
 ```
-```prolog
-:~/src/astgen$ python main.py tests/chess/lexicon tests/chess/grammar tests/chess/input
-['game', ['move', ('move_id', '1.'), ['pawn_move', ('cell', 'e4')], ['pawn_move', ('cell', 'e5')]], ['move', ('move_id', '2.'), ['move', ['fig', ('figure', 'Q')], ('cell', 'h5')], ['move', ['fig', ('figure', 'N')], ('cell', 'c6')]], ['move', ('move_id', '3.'), ['move', ['fig', ('figure', 'B')], ('cell', 'c4')], ['move', ['fig', ('figure', 'N')], ('cell', 'f6')]]]
+```
+:~/src/astgen$ python3 main.py tests/chess/lexicon tests/chess/grammar tests/chess/input
+['game',
+ ['move',
+  ('move_id', '1.'),
+  ['pawn_move',
+   ('cell', 'e4')
+  ],
+  ['pawn_move',
+   ('cell', 'e5')
+  ]
+ ],
+ ['move',
+  ('move_id', '2.'),
+  ['move',
+   ['fig',
+    ('figure', 'Q')
+   ],
+   ('cell', 'h5')
+  ],
+  ['move',
+   ['fig',
+    ('figure', 'N')
+   ],
+   ('cell', 'c6')
+  ]
+ ],
+ ['move',
+  ('move_id', '3.'),
+  ['move',
+   ['fig',
+    ('figure', 'B')
+   ],
+   ('cell', 'c4')
+  ],
+  ['move',
+   ['fig',
+    ('figure', 'N')
+   ],
+   ('cell', 'f6')
+  ]
+ ]
+]
 ```

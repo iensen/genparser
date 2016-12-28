@@ -40,6 +40,18 @@ class AST:
         self.root_label = root_label
         self.children = children
 
+    def children_list(self):
+        """ Return the list of children of the root of the tree.
+        If the tree has no children, an empty list is returned
+        """
+        if self.children is None:
+            return []
+        else:
+            return self.children
+
+    def __repr__(self):
+        return str(self.repr())
+
     def repr(self):
         """Get the representation of the tree as defined in section 3.5
         of the documentation
@@ -56,46 +68,35 @@ class AST:
             # rooted at i th child of T
             return [self.root_label] + self.children
 
-    def children_list(self):
-        """ Return the list of children of the root of the tree.
-        If the tree has no children, an empty list is returned
-        """
-        if self.children is None:
-            return []
-        else:
-            return self.children
-
-    def __repr__(self):
-        return str(self.repr())
-
     def __str__(self):
-        return self.__repr__()
-
-    def __getitem__(self,index):
-         return ([self.root_label] + self.children)[index]
-
-    def __len__(self):
-        return 1 + len(self.children)
+        return self.get_pretty_str()
 
     def get_pretty_str(self) -> str:
-        st = self.get_pretty_AST_str(self.repr())
+        T = self.repr() # class AST
+        T = list(T)
+        st = self.get_pretty_str_recur(T)
         return st
 
-    @staticmethod
-    def get_pretty_AST_str(T: list, tab_count=1) -> str:
-        """Acceptable: isinstance(T, AST)."""
-        PRETTY_AST_TAB = ' ' * 2
-        tabs = PRETTY_AST_TAB * tab_count
+    def get_pretty_str_recur(self, T: list, tab_count=0) -> str:
+        """Recursively build pretty string from substree T."""
+        PRETTY_STR_TAB = ' ' * 1
+        tabs = PRETTY_STR_TAB * tab_count
         st = tabs # building pretty string
         if isinstance(T, tuple): # leaf-node
             st += str(T)
         else:
             st += "['" + T[0] + "'"
-            for t in T[1:]: # subtree
+            for t in T[1:]: # proper subtrees of T
                 st2 = ',\n'
-                st2 += get_pretty_AST_str(
+                st2 += self.get_pretty_str_recur(
                         t, tab_count=tab_count+1
                     )
                 st += st2
             st += '\n' + tabs + ']'
         return st
+
+        def __getitem__(self,index):
+             return ([self.root_label] + self.children)[index]
+
+        def __len__(self):
+            return 1 + len(self.children)
